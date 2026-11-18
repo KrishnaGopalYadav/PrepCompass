@@ -255,6 +255,11 @@ def logout(request: Request, response: Response, user=Depends(current_user)):
     return {"status": "signed_out"}
 
 
+@app.get("/api/auth/google/config")
+def google_config():
+    return {"enabled": bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)}
+
+
 @app.get("/api/auth/google/start")
 def google_start():
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
