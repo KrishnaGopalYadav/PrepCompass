@@ -3,9 +3,13 @@ services:
     build:
       context: ./backend
     container_name: prepcompass-api
+    env_file:
+      - path: ./backend/.env
+        required: false
     environment:
       DATABASE_PATH: /app/data/prepcompass.db
       FRONTEND_URL: http://localhost:3011
+      BACKEND_URL: http://localhost:8011
     ports:
       - "8011:8000"
     volumes:
@@ -17,7 +21,6 @@ services:
       context: ./frontend
       args:
         NEXT_PUBLIC_API_BASE_URL: http://localhost:8011
-    container_name: prepcompass-frontend
     environment:
       NEXT_PUBLIC_API_BASE_URL: http://localhost:8011
     ports:
