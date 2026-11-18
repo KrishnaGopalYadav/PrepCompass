@@ -74,6 +74,8 @@ export default function Home() {
   const todayPercent = data ? Math.min(100, Math.round(data.today.studied_minutes / data.today.goal_minutes * 100)) : 0;
   const weekPercent = data ? Math.min(100, Math.round(data.this_week.studied_minutes / data.this_week.goal_minutes * 100)) : 0;
 
+  if (!authChecked || !user) return <main className="auth-loading">Loading your private workspace…</main>;
+
   return (
     <main className="app-shell">
       <aside className="sidebar">
