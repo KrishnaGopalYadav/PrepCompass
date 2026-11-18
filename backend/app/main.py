@@ -265,11 +265,19 @@ def google_start():
         "code_challenge_method": "S256",
         "prompt": "select_account",
     }
-    return RedirectResponse("https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params))
+    redirect = RedirectResponse("https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params))
+    redirect.set_cookie(
+        "prepcompass_oauth_state", state, httponly=True, secure=COOKIE_SECURE,
+        samesite="lax", max_age=600, path="/api/auth/google",
+    )
+    return redirect
 
 
 @app.get("/api/auth/google/callback")
-async def google_callback(code: str, state: str):
+async def google_callback(request: Request, code: str, state: str):
+    browser_state = request.cookies.get("prepcompass_oauth_state")
+    if not browser_state or not hmac.compare_digest(browser_state, state):
+        raise HTTPException(status_code=400, detail="OAuth browser state did not match. Please try again.")
     with db_connection() as connection:
         state_row = connection.execute(
             "SELECT code_verifier FROM oauth_states WHERE state_hash = ? AND expires_at > ?",
@@ -316,6 +324,7 @@ async def google_callback(code: str, state: str):
             )
             user_id = cursor.lastrowid
     response = RedirectResponse(FRONTEND_URL + "/", status_code=303)
+    response.delete_cookie("prepcompass_oauth_state", path="/api/auth/google", httponly=True, secure=COOKIE_SECURE, samesite="lax")
     issue_session(response, user_id)
     return response
 
