@@ -22,6 +22,7 @@ export default function Home() {
   const [topic, setTopic] = useState("");
   const [duration, setDuration] = useState("60");
   const [notes, setNotes] = useState("");
+  const [studiedOn, setStudiedOn] = useState(new Date().toLocaleDateString("en-CA"));
 
   const refresh = useCallback(async () => {
     try {
@@ -45,7 +46,7 @@ export default function Home() {
     try {
       await saveStudySession({
         subject, topic: topic.trim(), duration_minutes: Number(duration),
-        studied_on: new Date().toLocaleDateString("en-CA"), notes,
+        studied_on: studiedOn, notes,
       });
       setTopic("");
       setNotes("");
@@ -95,7 +96,7 @@ export default function Home() {
               <form onSubmit={handleSubmit}>
                 <label>SUBJECT<select value={subject} onChange={e => setSubject(e.target.value)}>{subjects.map(item => <option key={item}>{item}</option>)}</select></label>
                 <label>TOPIC<input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Fundamental Rights" required maxLength={200} /></label>
-                <div className="form-row"><label>DURATION<select value={duration} onChange={e => setDuration(e.target.value)}><option value="25">25 minutes</option><option value="45">45 minutes</option><option value="60">1 hour</option><option value="90">1 hour 30 min</option><option value="120">2 hours</option><option value="150">2 hours 30 min</option></select></label><label>DATE<input type="date" defaultValue={new Date().toLocaleDateString("en-CA")} /></label></div>
+                <div className="form-row"><label>DURATION<select value={duration} onChange={e => setDuration(e.target.value)}><option value="25">25 minutes</option><option value="45">45 minutes</option><option value="60">1 hour</option><option value="90">1 hour 30 min</option><option value="120">2 hours</option><option value="150">2 hours 30 min</option></select></label><label>DATE<input type="date" value={studiedOn} onChange={e => setStudiedOn(e.target.value)} /></label></div>
                 <label>NOTES <span className="optional">(OPTIONAL)</span><textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="What did you learn? Any doubts to revisit?" rows={2} /></label>
                 <button className="primary-button" type="submit" disabled={saving}><Plus size={17} /> {saving ? "Saving..." : "Save study session"} <ArrowUpRight size={16} /></button>
                 {notice && <p className="form-notice">{notice}</p>}
