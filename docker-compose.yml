@@ -7,7 +7,7 @@ services:
       DATABASE_PATH: /app/data/prepcompass.db
       FRONTEND_URL: http://localhost:3000
     ports:
-      - "8000:8000"
+      - "8011:8000"
     volumes:
       - ./backend/data:/app/data
     restart: unless-stopped
@@ -16,12 +16,12 @@ services:
     build:
       context: ./frontend
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8011
     container_name: prepcompass-frontend
     environment:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8011
     ports:
-      - "3000:3000"
+      - "3011:3000"
     depends_on:
       - api
     restart: unless-stopped
