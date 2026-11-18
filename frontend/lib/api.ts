@@ -12,9 +12,10 @@ export type DashboardData = {
 };
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
   const response = await fetch(`${API_BASE}${path}`, {
-    ...init, credentials: "include", cache: "no-store",
-    headers: { ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers },
+    ...init, headers, credentials: "include", cache: "no-store",
   });
   if (!response.ok) {
     const body = await response.json().catch(() => null);
@@ -32,11 +33,7 @@ export const loginAccount = (payload: { email: string; password: string }) =>
 export const logoutAccount = () => request<{ status: string }>("/api/auth/logout", { method: "POST" });
 export const googleSignInUrl = `${API_BASE}/api/auth/google/start`;
 
-export async function getDashboard(): Promise<DashboardData> {
-  return request<DashboardData>("/api/dashboard");
-}
-export async function saveStudySession(payload: {
+export const getDashboard = () => request<DashboardData>("/api/dashboard");
+export const saveStudySession = (payload: {
   subject: string; topic: string; duration_minutes: number; studied_on: string; notes: string;
-}): Promise<StudySession> {
-  return request<StudySession>("/api/study-sessions", { method: "POST", body: JSON.stringify(payload) });
-}
+}) => request<StudySession>("/api/study-sessions", { method: "POST", body: JSON.stringify(payload) });
