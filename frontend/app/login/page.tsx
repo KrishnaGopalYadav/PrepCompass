@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Compass, ShieldCheck } from "lucide-react";
-import { getCurrentUser, googleSignInUrl, loginAccount, registerAccount } from "@/lib/api";
+import { getCurrentUser, getGoogleOAuthConfig, googleSignInUrl, loginAccount, registerAccount } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,9 +13,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [googleEnabled, setGoogleEnabled] = useState(false);
 
   useEffect(() => {
     getCurrentUser().then(() => router.replace("/")).catch(() => undefined);
+    getGoogleOAuthConfig().then(config => setGoogleEnabled(config.enabled)).catch(() => undefined);
   }, [router]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -52,8 +54,8 @@ export default function LoginPage() {
           {error && <div className="auth-error" role="alert">{error}</div>}
           <button className="auth-submit" type="submit" disabled={busy}>{busy ? "Please wait…" : mode === "register" ? "Create my account" : "Sign in to PrepCompass"}</button>
         </form>
-        <div className="auth-divider"><span>OR</span></div>
-        <a className="google-button" href={googleSignInUrl}>Continue with Google</a>
+        {googleEnabled && <><div className="auth-divider"><span>OR</span></div>
+        <a className="google-button" href={googleSignInUrl}>Continue with Google</a></>}
         <div className="auth-privacy"><ShieldCheck size={17} /><span>Each account has its own private study history. Google sign-in is optional.</span></div>
       </section>
       <p className="auth-footer">PREPCOMPASS · PLAN. PREPARE. PROGRESS.</p>
