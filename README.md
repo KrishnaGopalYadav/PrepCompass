@@ -16,7 +16,16 @@ PrepCompass is a local-first study management application for integrated prepara
 - Database: SQLite
 - Local runtime: Docker Compose
 
-## Current milestone: Phase 1 foundation
+## Current milestone: Phase 2A — accounts and private workspaces
+- Email/password registration and sign-in
+- Optional Google OAuth 2.0 sign-in with state validation and PKCE
+- HTTP-only, hashed server-side sessions
+- Authenticated dashboard and study-session APIs
+- Per-account study-session isolation
+- SQLite migration that leaves pre-account legacy records unassigned
+- Regression tests for authentication, isolation and migration
+
+## Previous milestone: Phase 1 foundation
 - Responsive dashboard shell
 - Daily study goal and tracked study time
 - Record a study session with subject, topic, duration and notes
@@ -61,6 +70,42 @@ npm run dev
 ```
 
 Set `NEXT_PUBLIC_API_BASE_URL=http://localhost:8011` if needed.
+
+
+## Account setup
+
+On first launch, open the frontend and create an account. Each account has a separate study history. Email/password accounts require a password of at least 10 characters.
+
+### Optional Google sign-in
+
+1. Open Google Cloud Console and create/select a project.
+2. Configure the OAuth consent screen for the intended audience.
+3. Create an OAuth Client ID with application type **Web application**.
+4. Add this authorised redirect URI exactly:
+   `http://localhost:8011/api/auth/google/callback`
+5. Copy `backend/.env.example` to `backend/.env`.
+6. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `backend/.env`.
+7. Restart/rebuild the services: `docker compose up --build -d`.
+
+Google credentials belong to the application operator, not each end user. Never commit `backend/.env`, publish the client secret, or paste it into chat. Email/password registration works even when Google credentials are not configured.
+
+For local HTTP development, `COOKIE_SECURE=false` is expected. For an HTTPS deployment, set `COOKIE_SECURE=true`, use HTTPS redirect/origin URLs, and store secrets in the deployment's secret manager.
+
+### Existing study data
+
+The database migration adds a nullable `user_id` to existing study sessions. Old rows remain unassigned and are not automatically exposed to the first account that registers. This is intentional to prevent accidental disclosure in a multi-user installation. A deliberate legacy-data import/claim workflow can be added after the owner verifies which account should receive those records.
+
+### Backend tests
+
+From the repository root:
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+pytest -q
+```
 
 ## Preparation profile defaults
 The initial product plan is based on the following preparation context and can be edited in later milestones:
