@@ -32,6 +32,7 @@ export const loginAccount = (payload: { email: string; password: string }) =>
   request<User>("/api/auth/login", { method: "POST", body: JSON.stringify(payload) });
 export const logoutAccount = () => request<{ status: string }>("/api/auth/logout", { method: "POST" });
 export const googleSignInUrl = `${API_BASE}/api/auth/google/start`;
+export const getGoogleOAuthConfig = () => request<{ enabled: boolean }>("/api/auth/google/config");
 
 export const getDashboard = () => request<DashboardData>("/api/dashboard");
 export const saveStudySession = (payload: {
