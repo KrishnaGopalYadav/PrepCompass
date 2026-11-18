@@ -1,8 +1,9 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Activity, ArrowUpRight, BookOpen, CalendarDays, CheckCircle2, Clock3, Compass, GraduationCap, Plus, RefreshCw, Target, Timer, TrendingUp } from "lucide-react";
-import { DashboardData, getDashboard, saveStudySession } from "@/lib/api";
+import { DashboardData, getDashboard, getCurrentUser, logoutAccount, saveStudySession, User } from "@/lib/api";
 
 const subjects = ["General Studies", "Sociology", "Forestry", "Geology", "CSAT", "Current Affairs", "UPPSC-specific", "Essay", "Ethics"];
 
@@ -36,7 +37,7 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {\n    getCurrentUser().then(setUser).catch(() => router.replace("/login")).finally(() => setAuthChecked(true));\n  }, [router]);\n\n  useEffect(() => { if (user) void refresh(); }, [user, refresh]);\n\n  async function handleLogout() {\n    try { await logoutAccount(); } finally { router.replace("/login"); }\n  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -72,11 +73,11 @@ export default function Home() {
         <a className="nav-item muted" href="#roadmap"><BookOpen size={17} /> Syllabus tracker</a>
         <a className="nav-item muted" href="#roadmap"><CalendarDays size={17} /> Study planner</a>
         <a className="nav-item muted" href="#roadmap"><Target size={17} /> Tests & revision</a>
-        <div className="sidebar-bottom"><div className="profile-chip"><div className="avatar">K</div><div><strong>Your workspace</strong><span>Local profile</span></div></div><p>Your data stays on this device.</p></div>
+        <div className="sidebar-bottom"><div className="profile-chip"><div className="avatar">K</div><div><strong>{user.display_name}</strong><span>{user.email}</span></div></div><p>Your study records are private to your account.</p></div>
       </aside>
 
       <section className="main-panel">
-        <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> Overview</div><div className="top-actions"><span className="local-pill"><span /> LOCAL MODE</span><button className="icon-button" onClick={() => { setLoading(true); void refresh(); }} aria-label="Refresh dashboard"><RefreshCw size={17} /></button><div className="avatar small">K</div></div></header>
+        <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> Overview</div><div className="top-actions"><span className="local-pill"><span /> LOCAL MODE</span><button className="icon-button" onClick={() => { setLoading(true); void refresh(); }} aria-label="Refresh dashboard"><RefreshCw size={17} /></button><div className="avatar small">{user.display_name.slice(0, 1).toUpperCase()}</div><button className="logout-button" onClick={handleLogout}>Sign out</button></div></header>
         <div className="content">
           <section className="welcome-row" id="overview"><div><div className="eyebrow">WEDNESDAY, 18 NOVEMBER 2026</div><h1>Your journey, <em>in focus.</em></h1><p>A little progress every day adds up to something extraordinary.</p></div><div className="target-tag"><Target size={17} /><span>MISSION 2028</span></div></section>
 
