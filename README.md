@@ -35,9 +35,9 @@ docker compose up --build
 ```
 
 Open:
-- Frontend: http://localhost:3000
-- API health: http://localhost:8000/api/health
-- API documentation: http://localhost:8000/docs
+- Frontend: http://localhost:3011
+- API health: http://localhost:8011/api/health
+- API documentation: http://localhost:8011/docs
 
 To stop: `docker compose down`. Your data remains in `backend/data`.
 To stop and remove containers only: `docker compose down`. Do not delete `backend/data` if you want to retain your records.
@@ -60,7 +60,7 @@ npm install
 npm run dev
 ```
 
-Set `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000` if needed.
+Set `NEXT_PUBLIC_API_BASE_URL=http://localhost:8011` if needed.
 
 ## Preparation profile defaults
 The initial product plan is based on the following preparation context and can be edited in later milestones:
