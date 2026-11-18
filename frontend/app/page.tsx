@@ -14,6 +14,9 @@ function minutesLabel(minutes: number) {
 }
 
 export default function Home() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -37,7 +40,15 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => {\n    getCurrentUser().then(setUser).catch(() => router.replace("/login")).finally(() => setAuthChecked(true));\n  }, [router]);\n\n  useEffect(() => { if (user) void refresh(); }, [user, refresh]);\n\n  async function handleLogout() {\n    try { await logoutAccount(); } finally { router.replace("/login"); }\n  }
+  useEffect(() => {
+    getCurrentUser().then(setUser).catch(() => router.replace("/login")).finally(() => setAuthChecked(true));
+  }, [router]);
+
+  useEffect(() => { if (user) void refresh(); }, [user, refresh]);
+
+  async function handleLogout() {
+    try { await logoutAccount(); } finally { router.replace("/login"); }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
