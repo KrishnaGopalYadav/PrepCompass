@@ -211,12 +211,57 @@ def seed_syllabus_catalog(database_path: str) -> None:
         for node in NODES:
             node_id, parent, stage, paper, title, description, order, node_type = node
             exam_id = "upsc_cse" if node_id.startswith("cse-") else "upsc_ifos" if node_id.startswith("ifos-") else "uppsc_pcs" if node_id.startswith("pcs-") else "uppsc_acf_rfo"
+            source_locator = (
+                "Appendix I, Section III (CSE syllabus)" if exam_id == "upsc_cse"
+                else "Gazette 2026, Appendix I, Section II/III (IFoS scheme and syllabus)" if exam_id == "upsc_ifos"
+                else "Advertisement A-1/E-1/2025, Appendix 4 (PCS mains)" if exam_id == "uppsc_pcs" and stage == "mains"
+                else "Advertisement A-1/E-1/2025, Appendix 3 (common prelims)" if exam_id == "uppsc_pcs"
+                else "Advertisement A-1/E-1/2025, Appendix 5/6 (ACF/RFO scheme and syllabus)"
+            )
             conn.execute(
                 """INSERT OR IGNORE INTO syllabus_nodes
-                (node_id,exam_id,source_id,parent_node_id,stage,paper_code,title,description,sort_order,node_type)
-                VALUES (?,?,?,?,?,?,?,?,?,?)""",
-                (node_id, exam_id, source_for_exam[exam_id], parent, stage, paper, title, description, order, node_type),
+                (node_id,exam_id,source_id,parent_node_id,stage,paper_code,title,description,sort_order,node_type,source_locator)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                (node_id, exam_id, source_for_exam[exam_id], parent, stage, paper, title, description, order, node_type, source_locator),
             )
+        optional_subjects = {
+            "upsc_ifos": [
+                ("agriculture", "Agriculture"), ("agricultural_engineering", "Agricultural Engineering"),
+                ("animal_husbandry", "Animal Husbandry and Veterinary Science"), ("botany", "Botany"),
+                ("chemistry", "Chemistry"), ("chemical_engineering", "Chemical Engineering"),
+                ("civil_engineering", "Civil Engineering"), ("forestry", "Forestry"),
+                ("geology", "Geology"), ("mathematics", "Mathematics"),
+                ("mechanical_engineering", "Mechanical Engineering"), ("physics", "Physics"),
+                ("statistics", "Statistics"), ("zoology", "Zoology"),
+            ],
+            "uppsc_acf_rfo": [
+                ("agriculture", "Agriculture"), ("agricultural_engineering", "Agricultural Engineering"),
+                ("animal_husbandry", "Animal Husbandry and Veterinary Science"), ("botany", "Botany"),
+                ("chemistry", "Chemistry"), ("chemical_engineering", "Chemical Engineering"),
+                ("civil_engineering", "Civil Engineering"), ("forestry", "Forestry"),
+                ("geology", "Geology"), ("mathematics", "Mathematics"),
+                ("mechanical_engineering", "Mechanical Engineering"), ("physics", "Physics"),
+                ("statistics", "Statistics"), ("zoology", "Zoology"),
+                ("horticulture", "Horticulture"), ("environmental_science", "Environmental Science"),
+            ],
+        }
+        conflict_pairs = [
+            ("agriculture", "agricultural_engineering", "Prohibited combination in the examination rules."),
+            ("agriculture", "animal_husbandry", "Prohibited combination in the examination rules."),
+            ("agriculture", "forestry", "Prohibited combination in the examination rules."),
+            ("chemistry", "chemical_engineering", "Prohibited combination in the examination rules."),
+            ("mathematics", "statistics", "Prohibited combination in the examination rules."),
+        ]
+        engineering = ["agricultural_engineering", "chemical_engineering", "civil_engineering", "mechanical_engineering"]
+        for exam_id, subjects in optional_subjects.items():
+            source_id = source_for_exam[exam_id]
+            for code, name in subjects:
+                conn.execute("INSERT OR IGNORE INTO optional_subject_catalog VALUES (?,?,?,?)", (exam_id, code, name, source_id))
+            for a, b, reason in conflict_pairs:
+                conn.execute("INSERT OR IGNORE INTO optional_subject_conflicts VALUES (?,?,?,?)", (exam_id, a, b, reason))
+            for i, a in enumerate(engineering):
+                for b in engineering[i+1:]:
+                    conn.execute("INSERT OR IGNORE INTO optional_subject_conflicts VALUES (?,?,?,?)", (exam_id, a, b, "Only one engineering subject may be selected."))
         for left, right, relation, rationale in CROSSWALKS:
             conn.execute(
                 "INSERT OR IGNORE INTO syllabus_crosswalks(source_node_id,target_node_id,relation,rationale) VALUES (?,?,?,?)",
