@@ -108,7 +108,7 @@ export default function PlannerPage() {
         <Link href="/" className="planner-nav"><Target size={17}/> Overview</Link>
         <Link href="/planner" className="planner-nav active"><CalendarDays size={17}/> Exam planner <span>NEW</span></Link>
         <a href="/#study-log" className="planner-nav"><Clock3 size={17}/> Study log</a>
-        <a href="/#roadmap" className="planner-nav"><BookOpen size={17}/> Syllabus tracker</a>
+        <Link href="/syllabus" className="planner-nav"><BookOpen size={17}/> Syllabus tracker</Link>
         <div className="planner-sidebar-foot"><div className="planner-user-avatar">{user.display_name.slice(0,1).toUpperCase()}</div><div><b>{user.display_name}</b><small>Personal workspace</small></div></div>
       </aside>
 
