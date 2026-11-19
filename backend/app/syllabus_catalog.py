@@ -83,7 +83,8 @@ NODES = [
     ("cse-interview", None, "interview", "Personality Test", "Interview / Personality Test", "Personality assessment described in the CSE notice.", 8, "paper"),
 
     # IFoS
-    ("ifos-pre", None, "preliminary", "CSE Prelims", "Civil Services Preliminary Examination (screening)", "IFoS screening uses the Civil Services Preliminary Examination: GS Paper I and qualifying GS Paper II.", 1, "paper"),
+    ("ifos-pre-gs1", None, "preliminary", "CSE Prelims GS-I", "Civil Services Preliminary General Studies Paper I", "IFoS screening uses the Civil Services Preliminary Examination GS Paper I.", 1, "paper"),
+    ("ifos-pre-gs2", None, "preliminary", "CSE Prelims GS-II", "Civil Services Preliminary General Studies Paper II (CSAT)", "Qualifying paper with the minimum qualifying marks specified in the IFoS rules.", 2, "paper"),
     ("ifos-main-english", None, "mains", "Paper I", "General English", "Compulsory General English paper, 300 marks in the 2026 rules.", 2, "paper"),
     ("ifos-main-gk", None, "mains", "Paper II", "General Knowledge", "Compulsory General Knowledge paper, 300 marks in the 2026 rules.", 3, "paper"),
     ("ifos-forestry", None, "mains", "Optional: Forestry", "Forestry (two papers)", "Optional subject with Paper I and Paper II. Includes silviculture, agroforestry, soils, watershed, forest management, protection, wildlife, economics and legislation.", 4, "optional"),
@@ -123,14 +124,14 @@ NODES = [
     ("acf-main-gs2", None, "mains", "Paper III", "General Studies Paper II", "Compulsory General Studies paper.", 3, "paper"),
     ("acf-main-optional-forestry", None, "mains", "Optional Subject", "Forestry (two papers)", "Listed optional subject in the 2025 ACF/RFO notice; verify subject-combination rules in the applicable cycle.", 4, "optional"),
     ("acf-main-optional-geology", None, "mains", "Optional Subject", "Geology (two papers)", "Listed optional subject in the 2025 ACF/RFO notice; verify subject-combination rules in the applicable cycle.", 5, "optional"),
-    ("acf-main-gs-up", None, "mains", "Appendix 6: GS-V / GS-VI", "Uttar Pradesh-specific General Studies", "UP history, society, governance, economy, forestry, agriculture, geography, natural resources and environment topics in the 2025 ACF/RFO appendices.", 6, "paper"),
+    
     ("acf-interview", None, "interview", "Personality Test", "Interview / Personality Test", "Personality test as specified in the applicable UPPSC ACF/RFO notice.", 7, "paper"),
 ]
 
 # Explicit crosswalks only where the source documents state the same screening syllabus.
 CROSSWALKS = [
-    ("cse-pre", "ifos-pre", "same_exam_stage", "IFoS 2026 rules use the Civil Services Preliminary Examination for screening."),
-    ("cse-csat", "ifos-pre", "shared_screening_component", "Both examinations use the CSE Preliminary GS Paper II as a qualifying paper; detailed paper linkage is shown in the IFoS rules."),
+    ("cse-pre", "ifos-pre-gs1", "same_screening_exam", "IFoS 2026 rules require candidates to qualify the Civil Services Preliminary Examination."),
+    ("cse-csat", "ifos-pre-gs2", "same_screening_paper", "IFoS 2026 rules prescribe the CSE Preliminary GS Paper II as a qualifying paper."),
     ("pcs-pre-gs1", "acf-pre-gs1", "same_notice_appendix", "UPPSC 2025 Appendix 3 explicitly applies to both PCS and ACF/RFO."),
     ("pcs-pre-csat", "acf-pre-gs2", "same_notice_appendix", "UPPSC 2025 Appendix 3 explicitly applies to both PCS and ACF/RFO."),
 ]
@@ -166,6 +167,9 @@ def ensure_syllabus_schema(database_path: str) -> None:
             node_type TEXT NOT NULL DEFAULT 'topic',
             UNIQUE(node_id, source_id)
         )""")
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(syllabus_nodes)")}
+        if "source_locator" not in columns:
+            conn.execute("ALTER TABLE syllabus_nodes ADD COLUMN source_locator TEXT NOT NULL DEFAULT ''")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_syllabus_nodes_exam_stage ON syllabus_nodes(exam_id, stage, sort_order)")
         conn.execute("""CREATE TABLE IF NOT EXISTS syllabus_crosswalks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -175,11 +179,18 @@ def ensure_syllabus_schema(database_path: str) -> None:
             rationale TEXT NOT NULL,
             UNIQUE(source_node_id, target_node_id, relation)
         )""")
+        conn.execute("""CREATE TABLE IF NOT EXISTS optional_subject_catalog (
+            exam_id TEXT NOT NULL, subject_code TEXT NOT NULL, subject_name TEXT NOT NULL,
+            source_id TEXT NOT NULL REFERENCES syllabus_sources(source_id),
+            PRIMARY KEY(exam_id, subject_code)
+        )""")
+        conn.execute("""CREATE TABLE IF NOT EXISTS optional_subject_conflicts (
+            exam_id TEXT NOT NULL, subject_a TEXT NOT NULL, subject_b TEXT NOT NULL, reason TEXT NOT NULL,
+            PRIMARY KEY(exam_id, subject_a, subject_b)
+        )""")
         conn.execute("""CREATE TABLE IF NOT EXISTS candidate_optional_subjects (
             user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            exam_id TEXT NOT NULL,
-            subject_code TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
+            exam_id TEXT NOT NULL, subject_code TEXT NOT NULL, updated_at TEXT NOT NULL,
             PRIMARY KEY(user_id, exam_id, subject_code)
         )""")
         conn.commit()
