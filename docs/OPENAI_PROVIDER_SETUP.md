@@ -2,7 +2,7 @@
 
 PrepCompass uses a free-inference-only provider router. It does not call OpenAI and has no paid-provider fallback.
 
-## Provider order
+## Hosted model safety allowlist\n\nTo prevent accidental paid inference, the application accepts only these hosted model IDs:\n\n- Gemini: `gemini-2.5-flash`, `gemini-2.5-flash-lite` (Google lists these on the free tier; access is account/region/availability dependent).\n- Groq: `openai/gpt-oss-120b`, `openai/gpt-oss-20b` (use the Groq Free plan, not the paid Developer plan).\n\nOther hosted model IDs are rejected by configuration validation. The allowlist must be reviewed when providers change their free-tier catalog. Ollama models are local and are not subject to this hosted model allowlist.\n\n## Provider order
 
 Set `AI_PROVIDER` to the primary provider and `AI_FALLBACK_PROVIDERS` to an ordered comma-separated list:
 
