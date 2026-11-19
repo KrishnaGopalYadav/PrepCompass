@@ -525,8 +525,8 @@ def syllabus_catalog(exam_id: Optional[str] = None, cycle_year: Optional[int] = 
 
 @app.get("/api/syllabus/optional-subjects")
 def get_optional_subjects(exam_id: str, user=Depends(current_user)):
-    if exam_id not in {"upsc_ifos", "uppsc_acf_rfo"}:
-        raise HTTPException(status_code=422, detail="Optional-subject catalogue is currently available for IFoS and ACF/RFO only")
+    if exam_id not in {"upsc_cse", "upsc_ifos", "uppsc_acf_rfo"}:
+        raise HTTPException(status_code=422, detail="No optional-subject catalogue is available for this examination")
     with db_connection() as connection:
         selected_target = connection.execute(
             "SELECT 1 FROM candidate_exam_targets WHERE user_id=? AND exam_id=?",
@@ -546,7 +546,7 @@ def get_optional_subjects(exam_id: str, user=Depends(current_user)):
             "SELECT subject_a, subject_b, reason FROM optional_subject_conflicts WHERE exam_id=?",
             (exam_id,),
         ).fetchall()
-    return {"exam_id": exam_id, "required_count": 2,
+    return {"exam_id": exam_id, "required_count": 1 if exam_id == "upsc_cse" else 2,
             "options": [dict(x) for x in options],
             "selected": [x["subject_code"] for x in selected],
             "prohibited_combinations": [dict(x) for x in conflicts]}
@@ -559,10 +559,11 @@ class OptionalSubjectSelection(BaseModel):
 
 @app.put("/api/syllabus/optional-subjects")
 def save_optional_subjects(payload: OptionalSubjectSelection, user=Depends(current_user)):
-    if payload.exam_id not in {"upsc_ifos", "uppsc_acf_rfo"}:
-        raise HTTPException(status_code=422, detail="Optional-subject catalogue is currently available for IFoS and ACF/RFO only")
-    if len(set(payload.subjects)) != 2:
-        raise HTTPException(status_code=422, detail="Choose two different optional subjects")
+    if payload.exam_id not in {"upsc_cse", "upsc_ifos", "uppsc_acf_rfo"}:
+        raise HTTPException(status_code=422, detail="No optional-subject catalogue is available for this examination")
+    required_count = 1 if payload.exam_id == "upsc_cse" else 2
+    if len(set(payload.subjects)) != required_count:
+        raise HTTPException(status_code=422, detail=f"Choose exactly {required_count} different optional subject(s)")
     now = utc_now().isoformat()
     with db_connection() as connection:
         if not connection.execute(
