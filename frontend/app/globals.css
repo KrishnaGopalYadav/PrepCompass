@@ -92,3 +92,8 @@
 .daily-plan-empty p{color:#718080;font-size:14px;margin:0 auto 20px;max-width:480px}
 .daily-plan-notice{display:flex;gap:8px;align-items:center;color:#2f7968;background:#edf7f1;border-radius:9px;padding:12px 14px;font-size:13px;margin:16px 0}
 @media(max-width:680px){.daily-plan-intro{align-items:flex-start;flex-direction:column}.daily-plan-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.daily-task-card{flex-wrap:wrap}.daily-task-action{margin-left:50px}.daily-plan-content{padding:30px 16px 60px}.daily-plan-header{padding:0 16px}}
+
+.daily-task-controls{display:flex;align-items:flex-end;gap:8px;flex:none}
+.daily-task-controls label{display:flex;flex-direction:column;gap:4px;color:#82918f;font-size:9px;font-weight:800;letter-spacing:.5px}
+.daily-task-controls input{width:76px;border:1px solid #dce7e2;border-radius:7px;padding:8px;font-size:12px;color:#314846;background:#fff}
+@media(max-width:680px){.daily-task-controls{margin-left:50px;width:calc(100% - 50px);justify-content:flex-end}.daily-task-controls label{margin-right:auto}}
