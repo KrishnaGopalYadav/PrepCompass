@@ -66,8 +66,10 @@ export default function SyllabusPage() {
     return Array.from(groups.entries());
   }, [items]);
 
+  const requiredCount = optional?.required_count ?? (examId === "upsc_cse" ? 1 : 2);
+
   function toggleSubject(code: string) {
-    setSelected(prev => prev.includes(code) ? prev.filter(x => x !== code) : prev.length < 2 ? [...prev, code] : prev);
+    setSelected(prev => prev.includes(code) ? prev.filter(x => x !== code) : prev.length < requiredCount ? [...prev, code] : prev);
   }
 
   async function saveSubjects() {
@@ -104,11 +106,11 @@ export default function SyllabusPage() {
       {error && <div className="planner-error" role="alert">{error}</div>}
       {success && <div className="daily-plan-notice">{success}</div>}
 
-      {(examId === "upsc_ifos" || examId === "uppsc_acf_rfo") && <section className="optional-panel">
-        <div className="optional-heading"><div><div className="planner-kicker"><ShieldCheck size={13}/> CANDIDATE PROFILE</div><h2>Choose your two optional subjects</h2><p>Selections are private to your account and checked against the seeded combination restrictions.</p></div><span>{selected.length}/2 selected</span></div>
+      {(examId === "upsc_cse" || examId === "upsc_ifos" || examId === "uppsc_acf_rfo") && <section className="optional-panel">
+        <div className="optional-heading"><div><div className="planner-kicker"><ShieldCheck size={13}/> CANDIDATE PROFILE</div><h2>{requiredCount === 1 ? "Choose your optional subject" : "Choose your two optional subjects"}</h2><p>Selections are private to your account and checked against the source-cycle combination restrictions.</p></div><span>{selected.length}/{requiredCount} selected</span></div>
         {!isTarget ? <p className="optional-hint">Add this examination to your <Link href="/planner">exam planner</Link> before selecting optionals.</p> : optional && <>
           <div className="optional-grid">{optional.options.map(option=><button type="button" key={option.subject_code} onClick={()=>toggleSubject(option.subject_code)} className={selected.includes(option.subject_code)?"optional-choice active":"optional-choice"}><span>{selected.includes(option.subject_code)?"✓":""}</span>{option.subject_name}</button>)}</div>
-          <div className="optional-foot"><small>Two subjects are required. Prohibited combinations are rejected by the server.</small><button className="planner-primary" disabled={saving||selected.length!==2} onClick={saveSubjects}>{saving?<Loader2 className="spin" size={15}/>:<Save size={15}/>} Save optional subjects</button></div>
+          <div className="optional-foot"><small>{requiredCount === 1 ? "One subject is required." : "Two subjects are required."} Prohibited combinations are rejected by the server.</small><button className="planner-primary" disabled={saving||selected.length!==requiredCount} onClick={saveSubjects}>{saving?<Loader2 className="spin" size={15}/>:<Save size={15}/>} Save optional subjects</button></div>
           {optional.prohibited_combinations.length>0 && <details className="optional-rules"><summary>View prohibited combinations</summary><ul>{optional.prohibited_combinations.map((rule,i)=><li key={i}>{rule.subject_a.replaceAll("_"," ")} + {rule.subject_b.replaceAll("_"," ")} — {rule.reason}</li>)}</ul></details>}
         </>}
       </section>}
