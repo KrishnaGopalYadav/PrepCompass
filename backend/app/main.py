@@ -515,7 +515,7 @@ def save_planner_setup(payload: PlannerSetupPayload, user=Depends(current_user))
             "INSERT INTO candidate_exam_targets(user_id, exam_id, attempt_year, priority, created_at) VALUES (?, ?, ?, ?, ?)",
             [(user["id"], target.exam_id, target.attempt_year, target.priority, now) for target in payload.exam_targets],
         )
-    return {"status": "saved", "exam_count": len(payload.exam_targets), "message": "Your preparation profile is saved. Detailed daily plan generation is the next planner milestone."}
+    return {"status": "saved", "exam_count": len(payload.exam_targets), "message": "Your preparation profile is saved. Open the daily planner to generate your rolling study schedule."}
 
 @app.get("/api/planner/overview")
 def planner_overview(user=Depends(current_user)):
@@ -582,7 +582,7 @@ def planner_update_task(task_id: int, payload: TaskUpdatePayload, user=Depends(c
     with db_connection() as connection:
         result = connection.execute(
             """UPDATE plan_tasks SET status=?, actual_minutes=?, notes=?,
-               completed_at=CASE WHEN ?='completed' THEN ? ELSE completed_at END
+               completed_at=CASE WHEN ?='completed' THEN ? ELSE NULL END
                WHERE id=? AND user_id=?""",
             (payload.status, payload.actual_minutes, payload.notes.strip(), payload.status,
              utc_now().isoformat(), task_id, user["id"]),
