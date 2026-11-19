@@ -26,9 +26,17 @@ export default function DailyPlanPage() {
   }, []);
 
   useEffect(() => {
-    getCurrentUser().then(() => refresh()).catch(() => router.replace("/login"))
-      .catch(e => setError(e instanceof Error ? e.message : "Could not load your plan"))
-      .finally(() => setLoading(false));
+    (async () => {
+      try {
+        await getCurrentUser();
+        await refresh();
+      } catch (e) {
+        if (e instanceof Error && e.message === "Authentication required") router.replace("/login");
+        else setError(e instanceof Error ? e.message : "Could not load your plan");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [refresh, router]);
 
   async function generate() {
@@ -71,10 +79,10 @@ export default function DailyPlanPage() {
         <div><div className="planner-kicker"><CalendarDays size={13}/> YOUR NEXT 4 WEEKS</div>
           <h1>Your daily <em>study plan.</em></h1>
           <p>A rolling plan based on your saved availability and selected exams.</p></div>
-        <button className="planner-primary" onClick={generate} disabled={generating}>
+        {data?.has_setup && <button className="planner-primary" onClick={generate} disabled={generating}>
           {generating ? <Loader2 className="spin" size={16}/> : <RefreshCw size={16}/>}
           {generating ? "Generating…" : data?.plan ? "Regenerate plan" : "Generate my plan"}
-        </button>
+        </button>}
       </div>
 
       {error && <div className="planner-error" role="alert">{error}</div>}
@@ -82,7 +90,8 @@ export default function DailyPlanPage() {
 
       {!data?.plan ? <section className="daily-plan-empty">
         <div><CalendarDays size={28}/></div><h2>Your plan is ready to be generated</h2>
-        <p>Save your exam targets and availability first. PrepCompass will then create a rolling 28-day schedule.</p>
+        <p>{data?.has_setup ? "Your preparation profile is saved. Generate a rolling 28-day schedule from your selected availability." : "Save your exam targets and availability first. PrepCompass will then create a rolling 28-day schedule."}</p>
+        {data?.has_setup && <button className="planner-primary" onClick={generate} disabled={generating}>{generating ? "Generating…" : "Generate my plan"}</button>}
         <Link href="/planner" className="planner-primary">Review planner setup</Link>
       </section> : <>
         <div className="daily-plan-warning"><AlertTriangle size={18}/><div><b>Starter schedule — syllabus verification pending</b><p>{data.plan.assumptions.notice}</p></div></div>
