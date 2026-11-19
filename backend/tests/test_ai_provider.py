@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 from app import ai_provider
@@ -49,8 +51,7 @@ def test_parse_object_rejects_non_object():
         ai_provider._parse_object('[1, 2, 3]')
 
 
-@pytest.mark.asyncio
-async def test_generate_json_falls_back_from_gemini_to_groq(monkeypatch):
+def test_generate_json_falls_back_from_gemini_to_groq(monkeypatch):
     monkeypatch.setenv("AI_PROVIDER", "gemini")
     monkeypatch.setenv("AI_FALLBACK_PROVIDERS", "groq,ollama")
     monkeypatch.setenv("GEMINI_API_KEY", "test-gemini-key")
@@ -68,23 +69,22 @@ async def test_generate_json_falls_back_from_gemini_to_groq(monkeypatch):
     monkeypatch.setattr(ai_provider, "_generate_gemini", fail_gemini)
     monkeypatch.setattr(ai_provider, "_generate_openai_compatible", succeed_groq)
 
-    result = await ai_provider.generate_json(
+    result = asyncio.run(ai_provider.generate_json(
         instructions="Return status.",
         input_data={"test": True},
         max_output_tokens=200,
-    )
+    ))
 
     assert result["data"] == {"status": "ok"}
     assert result["provider"] == "groq"
     assert result["model"] == "test-groq-model"
 
 
-@pytest.mark.asyncio
-async def test_generate_json_never_uses_unconfigured_or_paid_provider(monkeypatch):
+def test_generate_json_never_uses_unconfigured_or_paid_provider(monkeypatch):
     for name in ("GEMINI_API_KEY", "GEMINI_MODEL", "GROQ_API_KEY", "GROQ_MODEL", "OLLAMA_MODEL"):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("AI_PROVIDER", "openai")
     monkeypatch.setenv("AI_FALLBACK_PROVIDERS", "")
 
     with pytest.raises(ai_provider.AIProviderNotConfigured):
-        await ai_provider.generate_json(instructions="x", input_data={})
+        asyncio.run(ai_provider.generate_json(instructions="x", input_data={}))
