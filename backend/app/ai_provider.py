@@ -15,7 +15,7 @@ from urllib.parse import quote
 import httpx
 
 
-CAPABILITIES = [
+FREE_MODEL_ALLOWLIST = {\n    "gemini": {"gemini-2.5-flash", "gemini-2.5-flash-lite"},\n    "groq": {"openai/gpt-oss-120b", "openai/gpt-oss-20b"},\n}\n\n\nCAPABILITIES = [
     "study_diagnostics",
     "mock_question_drafting",
     "answer_feedback",
@@ -38,10 +38,10 @@ def _setting(name: str, default: str = "") -> str:
 def _provider_config(provider: str) -> tuple[str, str, str] | None:
     if provider == "gemini":
         key, model = _setting("GEMINI_API_KEY"), _setting("GEMINI_MODEL")
-        return (key, model, "https://generativelanguage.googleapis.com/v1beta") if key and model else None
+        return (key, model, "https://generativelanguage.googleapis.com/v1beta") if key and model in FREE_MODEL_ALLOWLIST["gemini"] else None
     if provider == "groq":
         key, model = _setting("GROQ_API_KEY"), _setting("GROQ_MODEL")
-        return (key, model, "https://api.groq.com/openai/v1") if key and model else None
+        return (key, model, "https://api.groq.com/openai/v1") if key and model in FREE_MODEL_ALLOWLIST["groq"] else None
     if provider == "ollama":
         model = _setting("OLLAMA_MODEL")
         base_url = _setting("OLLAMA_BASE_URL", "http://host.docker.internal:11434/v1").rstrip("/")
