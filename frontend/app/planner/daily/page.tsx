@@ -100,7 +100,7 @@ export default function DailyPlanPage() {
               <div className="daily-task-type"><BookOpen size={16}/></div>
               <div className="daily-task-body"><div className="daily-task-meta">{task.subject} · {task.task_type.replace("_"," ").toUpperCase()} · {task.syllabus_status.toUpperCase()}</div>
                 <h3>{task.topic}</h3><p>{task.instruction}</p>
-                <div className="daily-task-foot"><span><Clock3 size={13}/> {minutes(task.estimated_minutes)}</span><span>Mapped exams: {task.exam_ids.join(", ")}</span></div>
+                <div className="daily-task-foot"><span><Clock3 size={13}/> {minutes(task.estimated_minutes)}</span><span>Selected exam context: {task.exam_ids.join(", ")}</span></div>
               </div>
               <button className="daily-task-action" disabled={task.status==="completed"} onClick={()=>completeTask(task.id,task.estimated_minutes)}>
                 {task.status==="completed" ? <><CheckCircle2 size={15}/> Completed</> : "Mark complete"}
