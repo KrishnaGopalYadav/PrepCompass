@@ -554,7 +554,7 @@ def get_optional_subjects(exam_id: str, user=Depends(current_user)):
 
 class OptionalSubjectSelection(BaseModel):
     exam_id: str
-    subjects: list[str] = Field(min_length=2, max_length=2)
+    subjects: list[str] = Field(min_length=1, max_length=2)
 
 
 @app.put("/api/syllabus/optional-subjects")
