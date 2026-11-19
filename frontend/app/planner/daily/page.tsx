@@ -79,7 +79,7 @@ export default function DailyPlanPage() {
         <div><div className="planner-kicker"><CalendarDays size={13}/> YOUR NEXT 4 WEEKS</div>
           <h1>Your daily <em>study plan.</em></h1>
           <p>A rolling plan based on your saved availability and selected exams.</p></div>
-        {data?.has_setup && <button className="planner-primary" onClick={generate} disabled={generating}>
+        {data?.plan && <button className="planner-primary" onClick={generate} disabled={generating}>
           {generating ? <Loader2 className="spin" size={16}/> : <RefreshCw size={16}/>}
           {generating ? "Generating…" : data?.plan ? "Regenerate plan" : "Generate my plan"}
         </button>}
