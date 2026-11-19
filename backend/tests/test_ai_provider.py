@@ -36,6 +36,15 @@ def test_provider_status_unconfigured_without_any_provider(monkeypatch):
     assert result["model"] is None
 
 
+def test_paid_hosted_models_are_not_accepted(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "key")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-3.8-argon")
+    monkeypatch.setenv("GROQ_API_KEY", "key")
+    monkeypatch.setenv("GROQ_MODEL", "some-paid-model")
+    assert ai_provider._provider_config("gemini") is None
+    assert ai_provider._provider_config("groq") is None
+
+
 def test_provider_order_deduplicates_and_honors_order(monkeypatch):
     monkeypatch.setenv("AI_PROVIDER", "groq")
     monkeypatch.setenv("AI_FALLBACK_PROVIDERS", "gemini,groq,ollama")
