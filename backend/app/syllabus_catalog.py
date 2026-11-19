@@ -39,7 +39,7 @@ SOURCES = [
         "cycle_year": 2025,
         "title": "UPPSC Combined State / Upper Subordinate Services and ACF/RFO Services Examination 2025 — Advertisement A-1/E-1/2025",
         "issuing_body": "Uttar Pradesh Public Service Commission",
-        "document_url": "https://cdn-images.prepp.in/public/image/View_Enclosure_UPPSC_Notification_ce87c8a0e4cc86ea56b1eec167db36b9.pdf",
+        "document_url": "https://cdn-images.prepp.in/public/image/View_Enclosure_UPPSC_Notification_0117f86afb1e60c16a0cb18a0b7c74e3.pdf",
         "landing_url": "https://uppsc.up.nic.in/Home",
         "publication_date": "2025-02-20",
         "source_kind": "official_notification_copy_mirrored",
@@ -122,8 +122,8 @@ NODES = [
     ("acf-main-hindi-essay", None, "mains", "Paper I", "General Hindi and Essay", "Compulsory paper in the 2025 ACF/RFO scheme.", 1, "paper"),
     ("acf-main-gs1", None, "mains", "Paper II", "General Studies Paper I", "Compulsory General Studies paper.", 2, "paper"),
     ("acf-main-gs2", None, "mains", "Paper III", "General Studies Paper II", "Compulsory General Studies paper.", 3, "paper"),
-    ("acf-main-optional-forestry", None, "mains", "Optional Subject", "Forestry (two papers)", "Listed optional subject in the 2025 ACF/RFO notice; verify subject-combination rules in the applicable cycle.", 4, "optional"),
-    ("acf-main-optional-geology", None, "mains", "Optional Subject", "Geology (two papers)", "Listed optional subject in the 2025 ACF/RFO notice; verify subject-combination rules in the applicable cycle.", 5, "optional"),
+    ("acf-main-optional-subject-1", None, "mains", "Papers IV and V", "Optional Subject 1 (two papers)", "First optional subject selected from the 2025 ACF/RFO notification list.", 4, "optional"),
+    ("acf-main-optional-subject-2", None, "mains", "Papers VI and VII", "Optional Subject 2 (two papers)", "Second optional subject selected from the 2025 ACF/RFO notification list.", 5, "optional"),
     
     ("acf-interview", None, "interview", "Personality Test", "Interview / Personality Test", "Personality test as specified in the applicable UPPSC ACF/RFO notice.", 7, "paper"),
 ]
