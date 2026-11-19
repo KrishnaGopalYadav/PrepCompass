@@ -76,8 +76,8 @@ export default function SyllabusPage() {
     setSaving(true); setError(""); setSuccess("");
     try {
       await saveOptionalSubjects(examId, selected);
-      setSuccess("Your optional subject choices have been saved to your private profile.");
       await load();
+      setSuccess("Your optional subject choices have been saved to your private profile.");
     } catch (e) { setError(e instanceof Error ? e.message : "Could not save optional subjects"); }
     finally { setSaving(false); }
   }
