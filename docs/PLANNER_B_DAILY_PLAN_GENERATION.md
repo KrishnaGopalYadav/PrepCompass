@@ -14,9 +14,9 @@
 
 1. The planner uses the saved start date, daily hours and selected weekdays.
 2. It reserves 15% of the declared daily time as a recovery/buffer margin.
-3. It schedules up to three blocks on each selected study day: learning, active recall and practice.
+3. It schedules up to three blocks on each selected study day: learning, active recall and practice, reinforcing one topic on that day.
 4. The generated plan is a rolling window (28 days by default) and regeneration creates a new version; the previous active version becomes superseded.
-5. Every task is linked to the selected exam IDs and a topic identifier.
+5. Tasks carry the selected exam context and a provisional topic identifier. This is not a claim that every topic satisfies every selected exam syllabus.
 6. Completion records status, actual minutes and notes; task history remains attached to the plan version.
 7. All plan and task reads/writes are scoped to the authenticated user.
 
