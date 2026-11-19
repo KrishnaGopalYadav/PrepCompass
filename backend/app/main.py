@@ -711,3 +711,9 @@ def planner_update_task(task_id: int, payload: TaskUpdatePayload, user=Depends(c
             (task_id, user["id"]),
         ).fetchone()
     return dict(row)
+
+@app.get("/api/ai/status")
+async def ai_status(user=Depends(current_user)):
+    """Expose provider readiness without disclosing credentials."""
+    from app.ai_provider import provider_status
+    return provider_status()
