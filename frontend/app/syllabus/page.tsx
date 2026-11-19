@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import AppShell from "@/components/AppShell";
 import { AlertTriangle, ArrowLeft, BookOpen, ExternalLink, FileCheck2, Filter, Info, Loader2, Save, ShieldCheck } from "lucide-react";
 import { getCurrentUser, getOptionalSubjects, getPlannerOverview, getSyllabusCatalog, OptionalSubjectResponse, SyllabusNode, User, saveOptionalSubjects } from "@/lib/api";
 
@@ -84,7 +85,7 @@ export default function SyllabusPage() {
 
   if (!user) return <main className="planner-loading"><Loader2 className="spin" size={22}/> Loading syllabus…</main>;
 
-  return <main className="syllabus-shell">
+  return <AppShell userName={user.display_name} title="Syllabus library"><main className="syllabus-shell">
     <header className="syllabus-header">
       <Link href="/planner" className="daily-back"><ArrowLeft size={16}/> Exam planner</Link>
       <b>PrepCompass <span>SYLLABUS INTELLIGENCE</span></b>
@@ -128,5 +129,5 @@ export default function SyllabusPage() {
         </section>)
       }
     </section>
-  </main>;
+  </main></AppShell>;
 }
