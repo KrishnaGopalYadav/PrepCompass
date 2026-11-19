@@ -16,7 +16,14 @@ PrepCompass is a local-first study management application for integrated prepara
 - Database: SQLite
 - Local runtime: Docker Compose
 
-## Current milestone: Phase 2A — accounts and private workspaces
+## Current milestone: Planner Foundation — multi-exam setup and candidate profile
+- Account-scoped exam catalogue for UPSC CSE, IFoS, UPPSC PCS and ACF/RFO
+- Select multiple exams with independent attempt years
+- Save preparation start date, study medium, weekly study days, daily hours and current level
+- Responsive guided planner setup with exam cards, progress steps and review screen
+- Planner catalog, setup, save and overview APIs
+
+## Previous milestone: Phase 2A — accounts and private workspaces
 - Email/password registration and sign-in
 - Optional Google OAuth 2.0 sign-in with state validation and PKCE
 - HTTP-only, hashed server-side sessions
