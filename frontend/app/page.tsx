@@ -84,7 +84,7 @@ export default function Home() {
         <a className="nav-item active" href="#overview"><Activity size={17} /> Overview</a>
         <a className="nav-item" href="#study-log"><Clock3 size={17} /> Study log <span className="soon">LIVE</span></a>
         <a className="nav-item muted" href="#roadmap"><BookOpen size={17} /> Syllabus tracker</a>
-        <a className="nav-item muted" href="#roadmap"><CalendarDays size={17} /> Study planner</a>
+        <a className="nav-item" href="/planner"><CalendarDays size={17} /> Exam planner <span className="soon">NEW</span></a>
         <a className="nav-item muted" href="#roadmap"><Target size={17} /> Tests & revision</a>
         <div className="sidebar-bottom"><div className="profile-chip"><div className="avatar">K</div><div><strong>{user.display_name}</strong><span>{user.email}</span></div></div><p>Your study records are private to your account.</p></div>
       </aside>
