@@ -30,10 +30,10 @@ AI_PROVIDER=gemini
 AI_FALLBACK_PROVIDERS=groq,ollama
 
 GEMINI_API_KEY=
-GEMINI_MODEL=
+GEMINI_MODEL=gemini-2.5-flash
 
 GROQ_API_KEY=
-GROQ_MODEL=
+GROQ_MODEL=openai/gpt-oss-120b
 
 OLLAMA_BASE_URL=http://host.docker.internal:11434/v1
 OLLAMA_MODEL=
