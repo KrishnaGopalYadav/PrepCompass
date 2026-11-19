@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import AppShell from "@/components/AppShell";
 import { AlertTriangle, ArrowLeft, BookOpen, CalendarDays, CheckCircle2, Clock3, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { GeneratedPlanResponse, generateStudyPlan, getCurrentUser, getGeneratedPlan, updatePlanTask } from "@/lib/api";
 
@@ -75,7 +76,7 @@ export default function DailyPlanPage() {
 
   if (loading) return <main className="planner-loading"><Loader2 className="spin" size={22}/> Loading your daily plan…</main>;
 
-  return <main className="daily-plan-shell">
+  return <AppShell userName="Your account" title="Daily plan"><main className="daily-plan-shell">
     <header className="daily-plan-header">
       <Link href="/planner" className="daily-back"><ArrowLeft size={16}/> Planner setup</Link>
       <div className="daily-plan-brand"><span><Sparkles size={18}/></span><b>PrepCompass</b></div>
@@ -131,5 +132,5 @@ export default function DailyPlanPage() {
         </div>
       </>}
     </section>
-  </main>;
+  </main></AppShell>;
 }
