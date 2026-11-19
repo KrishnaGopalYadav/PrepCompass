@@ -15,7 +15,13 @@ from urllib.parse import quote
 import httpx
 
 
-FREE_MODEL_ALLOWLIST = {\n    "gemini": {"gemini-2.5-flash", "gemini-2.5-flash-lite"},\n    "groq": {"openai/gpt-oss-120b", "openai/gpt-oss-20b"},\n}\n\n\nCAPABILITIES = [
+FREE_MODEL_ALLOWLIST = {
+    "gemini": {"gemini-2.5-flash", "gemini-2.5-flash-lite"},
+    "groq": {"openai/gpt-oss-120b", "openai/gpt-oss-20b"},
+}
+
+
+CAPABILITIES = [
     "study_diagnostics",
     "mock_question_drafting",
     "answer_feedback",
