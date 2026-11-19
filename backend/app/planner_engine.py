@@ -94,12 +94,11 @@ def generate_rolling_plan(database_path: str, user_id: int, horizon_days: int = 
         if not selected_days:
             raise ValueError("Your profile has no available study days")
         start = max(date.fromisoformat(profile["preparation_start_date"]), date.today())
-        topics = list(STARTER_TOPICS)
-        if any(t["exam_id"] in {"upsc_ifos", "uppsc_acf_rfo"} for t in targets):
-            topics.extend([x for x in STARTER_TOPICS if x[0].startswith("forestry-") or x[0].startswith("geology-")])
-        # De-duplicate the technical topics appended for forest-service targets.
-        seen = set()
-        topics = [x for x in topics if not (x[0] in seen or seen.add(x[0]))]
+        forest_targets = any(t["exam_id"] in {"upsc_ifos", "uppsc_acf_rfo"} for t in targets)
+        topics = [
+            x for x in STARTER_TOPICS
+            if forest_targets or not x[0].startswith(("forestry-", "geology-"))
+        ]
         daily_capacity = int(float(profile["daily_hours"]) * 60 * 0.85)
         if daily_capacity < 25:
             raise ValueError("Available daily time is too low to create useful study blocks")
@@ -115,6 +114,7 @@ def generate_rolling_plan(database_path: str, user_id: int, horizon_days: int = 
             "capacity_buffer_percent": 15,
             "selected_days": sorted(selected_days),
             "exam_ids": exam_ids,
+            "exam_ids_meaning": "Selected exam context only; not a claim that every provisional topic satisfies each exam syllabus.",
             "syllabus_status": "provisional",
             "notice": "Starter topics are illustrative planning scaffolds, not a complete or notification-verified syllabus. Confirm exam stages, syllabus and dates against the relevant official notification.",
         }
@@ -132,10 +132,9 @@ def generate_rolling_plan(database_path: str, user_id: int, horizon_days: int = 
             if day.weekday() in selected_days:
                 remaining = daily_capacity
                 sequence = 0
-                # Two or three focused blocks, never exceeding the planned capacity.
+                topic = topics[topic_index % len(topics)]
+                # Learning, recall and practice blocks reinforce the same topic.
                 while remaining >= 25 and sequence < 3:
-                    topic = topics[topic_index % len(topics)]
-                    topic_index += 1
                     task_type, instruction, share = TASK_TYPES[sequence]
                     estimate = min(remaining, max(25, int(round(min(75, daily_capacity * share) / 5) * 5)))
                     if estimate < 25:
@@ -150,6 +149,7 @@ def generate_rolling_plan(database_path: str, user_id: int, horizon_days: int = 
                     remaining -= estimate
                     total_minutes += estimate
                     sequence += 1
+                topic_index += 1
                 scheduled_days += 1
             day += timedelta(days=1)
         conn.commit()
