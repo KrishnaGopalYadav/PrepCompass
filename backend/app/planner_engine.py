@@ -123,6 +123,7 @@ def generate_rolling_plan(database_path: str, user_id: int, horizon_days: int = 
             (user_id, version, start.isoformat(), end.isoformat(), "active", json.dumps(assumptions), created),
         )
         plan_id = cursor.lastrowid
+        conn.execute("UPDATE study_plans SET status='superseded' WHERE user_id=? AND id<>? AND status='active'", (user_id, plan_id))
         day = start
         topic_index = 0
         scheduled_days = 0
@@ -152,9 +153,11 @@ def generate_rolling_plan(database_path: str, user_id: int, horizon_days: int = 
                 scheduled_days += 1
             day += timedelta(days=1)
         conn.commit()
+    with sqlite3.connect(database_path) as conn:
+        task_count = conn.execute("SELECT COUNT(*) FROM plan_tasks WHERE plan_id=?", (plan_id,)).fetchone()[0]
     return {
         "plan_id": plan_id, "version": version, "start_date": start.isoformat(),
         "end_date": end.isoformat(), "scheduled_days": scheduled_days,
-        "task_count": scheduled_days * 3 if scheduled_days else 0,
+        "task_count": task_count,
         "planned_minutes": total_minutes, "assumptions": assumptions,
     }
