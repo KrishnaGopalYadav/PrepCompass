@@ -225,6 +225,20 @@ def seed_syllabus_catalog(database_path: str) -> None:
                 (node_id, exam_id, source_for_exam[exam_id], parent, stage, paper, title, description, order, node_type, source_locator),
             )
         optional_subjects = {
+            "upsc_cse": [
+                ("agriculture", "Agriculture"), ("animal_husbandry", "Animal Husbandry and Veterinary Science"),
+                ("anthropology", "Anthropology"), ("botany", "Botany"), ("chemistry", "Chemistry"),
+                ("civil_engineering", "Civil Engineering"), ("commerce_accountancy", "Commerce and Accountancy"),
+                ("economics", "Economics"), ("electrical_engineering", "Electrical Engineering"),
+                ("geography", "Geography"), ("geology", "Geology"), ("history", "History"),
+                ("law", "Law"), ("management", "Management"), ("mathematics", "Mathematics"),
+                ("mechanical_engineering", "Mechanical Engineering"), ("medical_science", "Medical Science"),
+                ("philosophy", "Philosophy"), ("physics", "Physics"),
+                ("political_science_ir", "Political Science and International Relations"),
+                ("psychology", "Psychology"), ("public_administration", "Public Administration"),
+                ("sociology", "Sociology"), ("statistics", "Statistics"), ("zoology", "Zoology"),
+                ("literature_language", "Literature of one notified language (select language separately)"),
+            ],
             "upsc_ifos": [
                 ("agriculture", "Agriculture"), ("agricultural_engineering", "Agricultural Engineering"),
                 ("animal_husbandry", "Animal Husbandry and Veterinary Science"), ("botany", "Botany"),
