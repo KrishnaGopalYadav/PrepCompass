@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import hmac
+import json
 import os
 import secrets
 import sqlite3
@@ -91,6 +92,47 @@ def initialise_database():
             connection.execute("ALTER TABLE study_sessions ADD COLUMN user_id INTEGER REFERENCES users(id)")
         connection.execute("CREATE INDEX IF NOT EXISTS idx_study_sessions_user_date ON study_sessions(user_id, studied_on)")
         connection.execute("CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token_hash)")
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS exam_catalog (
+                exam_id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                short_name TEXT NOT NULL,
+                conducting_body TEXT NOT NULL,
+                description TEXT NOT NULL,
+                syllabus_status TEXT NOT NULL DEFAULT 'pending_verification'
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS planner_profiles (
+                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                preparation_start_date TEXT NOT NULL,
+                medium TEXT NOT NULL DEFAULT 'English',
+                daily_hours REAL NOT NULL DEFAULT 2.5,
+                current_level TEXT NOT NULL DEFAULT 'beginner',
+                selected_days TEXT NOT NULL DEFAULT '[0,1,2,3,4,5]',
+                rest_day TEXT NOT NULL DEFAULT 'Sunday',
+                updated_at TEXT NOT NULL
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS candidate_exam_targets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                exam_id TEXT NOT NULL REFERENCES exam_catalog(exam_id),
+                attempt_year INTEGER NOT NULL,
+                priority INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL,
+                UNIQUE(user_id, exam_id)
+            )
+        """)
+        connection.execute("CREATE INDEX IF NOT EXISTS idx_exam_targets_user ON candidate_exam_targets(user_id)")
+        exams = [
+            ("upsc_cse", "UPSC Civil Services Examination", "CSE", "Union Public Service Commission", "Civil services examination with preliminary, mains and interview stages."),
+            ("upsc_ifos", "Indian Forest Service Examination", "IFoS", "Union Public Service Commission", "Forest service examination with a common preliminary stage and IFoS-specific mains and interview."),
+            ("uppsc_pcs", "UPPSC Combined State / Upper Subordinate Services", "PCS", "Uttar Pradesh Public Service Commission", "Uttar Pradesh state civil services examination; stages and scheme depend on the applicable notification."),
+            ("uppsc_acf_rfo", "UPPSC Assistant Conservator of Forest / Range Forest Officer", "ACF / RFO", "Uttar Pradesh Public Service Commission", "Forest services recruitment; eligibility and subject requirements depend on the applicable notification."),
+        ]
+        connection.executemany("INSERT OR IGNORE INTO exam_catalog(exam_id, name, short_name, conducting_body, description) VALUES (?, ?, ?, ?, ?)", exams)
         connection.execute("DELETE FROM sessions WHERE expires_at <= ?", (utc_now().isoformat(),))
         connection.execute("DELETE FROM oauth_states WHERE expires_at <= ?", (utc_now().isoformat(),))
 
@@ -198,6 +240,36 @@ class LoginPayload(BaseModel):
     email: EmailStr
     password: str = Field(min_length=1, max_length=128)
 
+
+
+class ExamTargetInput(BaseModel):
+    exam_id: str = Field(min_length=1, max_length=40)
+    attempt_year: int = Field(ge=2026, le=2035)
+    priority: int = Field(default=1, ge=1, le=4)
+
+class PlannerSetupPayload(BaseModel):
+    preparation_start_date: date
+    medium: str = Field(default="English", min_length=2, max_length=40)
+    daily_hours: float = Field(ge=0.5, le=12)
+    current_level: str = Field(default="beginner", pattern="^(beginner|intermediate|advanced)$")
+    selected_days: list[int] = Field(min_length=1, max_length=7)
+    rest_day: str = Field(default="Sunday", min_length=3, max_length=12)
+    exam_targets: list[ExamTargetInput] = Field(min_length=1, max_length=4)
+
+    @field_validator("selected_days")
+    @classmethod
+    def valid_days(cls, value):
+        if any(day < 0 or day > 6 for day in value) or len(set(value)) != len(value):
+            raise ValueError("Choose unique weekdays from Monday (0) to Sunday (6)")
+        return sorted(value)
+
+    @field_validator("exam_targets")
+    @classmethod
+    def unique_exams(cls, value):
+        ids = [target.exam_id for target in value]
+        if len(set(ids)) != len(ids):
+            raise ValueError("An exam can only be selected once")
+        return value
 
 class StudySessionCreate(BaseModel):
     subject: str = Field(min_length=1, max_length=100)
@@ -402,3 +474,53 @@ def create_study_session(payload: StudySessionCreate, user=Depends(current_user)
             (session_id, user["id"]),
         ).fetchone()
     return dict(row)
+
+@app.get("/api/planner/catalog")
+def planner_catalog(user=Depends(current_user)):
+    with db_connection() as connection:
+        rows = connection.execute("SELECT exam_id, name, short_name, conducting_body, description, syllabus_status FROM exam_catalog ORDER BY conducting_body, name").fetchall()
+    return [dict(row) for row in rows]
+
+@app.get("/api/planner/setup")
+def get_planner_setup(user=Depends(current_user)):
+    with db_connection() as connection:
+        profile = connection.execute("SELECT preparation_start_date, medium, daily_hours, current_level, selected_days, rest_day FROM planner_profiles WHERE user_id = ?", (user["id"],)).fetchone()
+        targets = connection.execute("SELECT exam_id, attempt_year, priority FROM candidate_exam_targets WHERE user_id = ? ORDER BY priority, exam_id", (user["id"],)).fetchall()
+    return {
+        "profile": ({**dict(profile), "selected_days": json.loads(profile["selected_days"])} if profile else None),
+        "exam_targets": [dict(row) for row in targets],
+    }
+
+@app.post("/api/planner/setup")
+def save_planner_setup(payload: PlannerSetupPayload, user=Depends(current_user)):
+    now = utc_now().isoformat()
+    with db_connection() as connection:
+        known = {row["exam_id"] for row in connection.execute("SELECT exam_id FROM exam_catalog")}
+        unknown = [target.exam_id for target in payload.exam_targets if target.exam_id not in known]
+        if unknown:
+            raise HTTPException(status_code=422, detail=f"Unknown exam selection: {unknown[0]}")
+        connection.execute("""
+            INSERT INTO planner_profiles(user_id, preparation_start_date, medium, daily_hours, current_level, selected_days, rest_day, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET preparation_start_date=excluded.preparation_start_date, medium=excluded.medium,
+                daily_hours=excluded.daily_hours, current_level=excluded.current_level, selected_days=excluded.selected_days,
+                rest_day=excluded.rest_day, updated_at=excluded.updated_at
+        """, (user["id"], payload.preparation_start_date.isoformat(), payload.medium.strip(), payload.daily_hours,
+              payload.current_level, json.dumps(payload.selected_days), payload.rest_day, now))
+        connection.execute("DELETE FROM candidate_exam_targets WHERE user_id = ?", (user["id"],))
+        connection.executemany(
+            "INSERT INTO candidate_exam_targets(user_id, exam_id, attempt_year, priority, created_at) VALUES (?, ?, ?, ?, ?)",
+            [(user["id"], target.exam_id, target.attempt_year, target.priority, now) for target in payload.exam_targets],
+        )
+    return {"status": "saved", "exam_count": len(payload.exam_targets), "message": "Your preparation profile is saved. Detailed daily plan generation is the next planner milestone."}
+
+@app.get("/api/planner/overview")
+def planner_overview(user=Depends(current_user)):
+    with db_connection() as connection:
+        profile = connection.execute("SELECT preparation_start_date, medium, daily_hours, current_level, selected_days, rest_day FROM planner_profiles WHERE user_id = ?", (user["id"],)).fetchone()
+        targets = connection.execute("""SELECT c.exam_id, c.attempt_year, c.priority, e.name, e.short_name, e.syllabus_status
+            FROM candidate_exam_targets c JOIN exam_catalog e ON e.exam_id = c.exam_id
+            WHERE c.user_id = ? ORDER BY c.priority, c.exam_id""", (user["id"],)).fetchall()
+    if not profile:
+        return {"configured": False, "profile": None, "exam_targets": []}
+    return {"configured": True, "profile": {**dict(profile), "selected_days": json.loads(profile["selected_days"])}, "exam_targets": [dict(row) for row in targets]}
