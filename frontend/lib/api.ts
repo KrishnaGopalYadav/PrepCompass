@@ -85,3 +85,34 @@ export const updatePlanTask = (taskId: number, payload: {
 }) => request<{ id: number; status: string; actual_minutes: number }>(
   `/api/planner/tasks/${taskId}`, { method: "PATCH", body: JSON.stringify(payload) }
 );
+
+export type SyllabusNode = {
+  node_id: string; exam_id: string; exam_name: string; parent_node_id: string | null;
+  stage: "preliminary" | "mains" | "interview"; paper_code: string; title: string;
+  description: string; sort_order: number; node_type: string; source_locator: string;
+  source_id: string; cycle_year: number; source_title: string; issuing_body: string;
+  document_url: string; landing_url: string; publication_date: string;
+  verification_status: string; source_notes: string;
+};
+export type SyllabusCatalogResponse = {
+  items: SyllabusNode[];
+  crosswalks: { source_node_id: string; target_node_id: string; relation: string; rationale: string }[];
+  catalogue_status: string; notice: string;
+};
+export const getSyllabusCatalog = (params: { exam_id?: string; cycle_year?: number; stage?: string } = {}) => {
+  const query = new URLSearchParams();
+  if (params.exam_id) query.set("exam_id", params.exam_id);
+  if (params.cycle_year) query.set("cycle_year", String(params.cycle_year));
+  if (params.stage) query.set("stage", params.stage);
+  return request<SyllabusCatalogResponse>(`/api/syllabus/catalog?${query.toString()}`);
+};
+export type OptionalSubjectResponse = {
+  exam_id: string; required_count: number; options: { subject_code: string; subject_name: string }[];
+  selected: string[]; prohibited_combinations: { subject_a: string; subject_b: string; reason: string }[];
+};
+export const getOptionalSubjects = (examId: string) =>
+  request<OptionalSubjectResponse>(`/api/syllabus/optional-subjects?exam_id=${encodeURIComponent(examId)}`);
+export const saveOptionalSubjects = (examId: string, subjects: string[]) =>
+  request<{ status: string; exam_id: string; subjects: string[] }>("/api/syllabus/optional-subjects", {
+    method: "PUT", body: JSON.stringify({ exam_id: examId, subjects }),
+  });
