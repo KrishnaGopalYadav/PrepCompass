@@ -50,6 +50,10 @@ def test_generate_plan_respects_days_capacity_and_labels_provisional(tmp_path, m
     assert all(task["syllabus_status"] == "provisional" for task in plan["tasks"])
     assert all(task["task_date"][:10] for task in plan["tasks"])
     assert all(task["estimated_minutes"] <= 127 for task in plan["tasks"])
+    first_day = plan["tasks"][0]["task_date"]
+    first_day_tasks = [task for task in plan["tasks"] if task["task_date"] == first_day]
+    assert len({task["topic_id"] for task in first_day_tasks}) == 1
+    assert all(not task["topic_id"].startswith(("forestry-", "geology-")) for task in plan["tasks"])
 
 
 def test_task_progress_update_and_account_isolation(tmp_path, monkeypatch):
