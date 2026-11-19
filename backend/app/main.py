@@ -18,6 +18,7 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.planner_engine import ensure_planning_schema, generate_rolling_plan
+from app.syllabus_catalog import ensure_syllabus_schema, seed_syllabus_catalog
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", str(Path(__file__).resolve().parents[1] / "data" / "prepcompass.db"))
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3011").rstrip("/")
@@ -141,6 +142,8 @@ def initialise_database():
 
 initialise_database()
 ensure_planning_schema(DATABASE_PATH)
+ensure_syllabus_schema(DATABASE_PATH)
+seed_syllabus_catalog(DATABASE_PATH)
 
 app = FastAPI(
     title="PrepCompass API",
@@ -477,6 +480,119 @@ def create_study_session(payload: StudySessionCreate, user=Depends(current_user)
             (session_id, user["id"]),
         ).fetchone()
     return dict(row)
+
+
+@app.get("/api/syllabus/catalog")
+def syllabus_catalog(exam_id: Optional[str] = None, cycle_year: Optional[int] = None,
+                     stage: Optional[str] = None, user=Depends(current_user)):
+    if stage and stage not in {"preliminary", "mains", "interview"}:
+        raise HTTPException(status_code=422, detail="Invalid syllabus stage")
+    clauses = []
+    values = []
+    if exam_id:
+        clauses.append("n.exam_id=?")
+        values.append(exam_id)
+    if cycle_year:
+        clauses.append("s.cycle_year=?")
+        values.append(cycle_year)
+    if stage:
+        clauses.append("n.stage=?")
+        values.append(stage)
+    where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
+    with db_connection() as connection:
+        rows = connection.execute(
+            f"""SELECT n.node_id, n.exam_id, e.name AS exam_name, n.parent_node_id,
+                       n.stage, n.paper_code, n.title, n.description, n.sort_order, n.node_type,
+                       n.source_locator, s.source_id, s.cycle_year, s.title AS source_title,
+                       s.issuing_body, s.document_url, s.landing_url, s.publication_date,
+                       s.verification_status, s.notes AS source_notes
+                FROM syllabus_nodes n
+                JOIN syllabus_sources s ON s.source_id=n.source_id
+                JOIN exam_catalog e ON e.exam_id=n.exam_id
+                {where}
+                ORDER BY n.exam_id, s.cycle_year DESC, n.stage, n.sort_order, n.node_id""",
+            values,
+        ).fetchall()
+        crosswalks = connection.execute(
+            """SELECT c.source_node_id, c.target_node_id, c.relation, c.rationale
+               FROM syllabus_crosswalks c"""
+        ).fetchall()
+    return {"items": [dict(row) for row in rows],
+            "crosswalks": [dict(row) for row in crosswalks],
+            "catalogue_status": "baseline_incomplete",
+            "notice": "Source-cycle syllabus outline only. Confirm the official notification for your target year; unseeded subtopics and resource mappings are not implied to be complete."}
+
+
+@app.get("/api/syllabus/optional-subjects")
+def get_optional_subjects(exam_id: str, user=Depends(current_user)):
+    if exam_id not in {"upsc_ifos", "uppsc_acf_rfo"}:
+        raise HTTPException(status_code=422, detail="Optional-subject catalogue is currently available for IFoS and ACF/RFO only")
+    with db_connection() as connection:
+        selected_target = connection.execute(
+            "SELECT 1 FROM candidate_exam_targets WHERE user_id=? AND exam_id=?",
+            (user["id"], exam_id),
+        ).fetchone()
+        if not selected_target:
+            raise HTTPException(status_code=404, detail="This examination is not in your preparation profile")
+        options = connection.execute(
+            "SELECT subject_code, subject_name FROM optional_subject_catalog WHERE exam_id=? ORDER BY subject_name",
+            (exam_id,),
+        ).fetchall()
+        selected = connection.execute(
+            "SELECT subject_code FROM candidate_optional_subjects WHERE user_id=? AND exam_id=? ORDER BY subject_code",
+            (user["id"], exam_id),
+        ).fetchall()
+        conflicts = connection.execute(
+            "SELECT subject_a, subject_b, reason FROM optional_subject_conflicts WHERE exam_id=?",
+            (exam_id,),
+        ).fetchall()
+    return {"exam_id": exam_id, "required_count": 2,
+            "options": [dict(x) for x in options],
+            "selected": [x["subject_code"] for x in selected],
+            "prohibited_combinations": [dict(x) for x in conflicts]}
+
+
+class OptionalSubjectSelection(BaseModel):
+    exam_id: str
+    subjects: list[str] = Field(min_length=2, max_length=2)
+
+
+@app.put("/api/syllabus/optional-subjects")
+def save_optional_subjects(payload: OptionalSubjectSelection, user=Depends(current_user)):
+    if payload.exam_id not in {"upsc_ifos", "uppsc_acf_rfo"}:
+        raise HTTPException(status_code=422, detail="Optional-subject catalogue is currently available for IFoS and ACF/RFO only")
+    if len(set(payload.subjects)) != 2:
+        raise HTTPException(status_code=422, detail="Choose two different optional subjects")
+    now = utc_now().isoformat()
+    with db_connection() as connection:
+        if not connection.execute(
+            "SELECT 1 FROM candidate_exam_targets WHERE user_id=? AND exam_id=?",
+            (user["id"], payload.exam_id),
+        ).fetchone():
+            raise HTTPException(status_code=404, detail="This examination is not in your preparation profile")
+        valid = {x["subject_code"] for x in connection.execute(
+            "SELECT subject_code FROM optional_subject_catalog WHERE exam_id=?", (payload.exam_id,)
+        )}
+        invalid = set(payload.subjects) - valid
+        if invalid:
+            raise HTTPException(status_code=422, detail=f"Unknown optional subject: {sorted(invalid)[0]}")
+        chosen = set(payload.subjects)
+        for conflict in connection.execute(
+            "SELECT subject_a, subject_b, reason FROM optional_subject_conflicts WHERE exam_id=?",
+            (payload.exam_id,),
+        ):
+            if {conflict["subject_a"], conflict["subject_b"]}.issubset(chosen):
+                raise HTTPException(status_code=422, detail=conflict["reason"])
+        connection.execute(
+            "DELETE FROM candidate_optional_subjects WHERE user_id=? AND exam_id=?",
+            (user["id"], payload.exam_id),
+        )
+        connection.executemany(
+            "INSERT INTO candidate_optional_subjects(user_id,exam_id,subject_code,updated_at) VALUES(?,?,?,?)",
+            [(user["id"], payload.exam_id, code, now) for code in payload.subjects],
+        )
+    return {"status": "saved", "exam_id": payload.exam_id, "subjects": payload.subjects}
+
 
 @app.get("/api/planner/catalog")
 def planner_catalog(user=Depends(current_user)):
