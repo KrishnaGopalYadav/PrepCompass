@@ -70,7 +70,7 @@ export type GeneratedPlan = {
   assumptions: { notice: string; syllabus_status: string; [key: string]: unknown };
 };
 export type GeneratedPlanResponse = {
-  configured: boolean; plan: GeneratedPlan | null; tasks: GeneratedPlanTask[];
+  configured: boolean; has_setup: boolean; plan: GeneratedPlan | null; tasks: GeneratedPlanTask[];
 };
 export const generateStudyPlan = (horizon_days = 28) =>
   request<{ plan_id: number; version: number; start_date: string; end_date: string;
