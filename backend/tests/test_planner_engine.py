@@ -72,7 +72,7 @@ def test_task_progress_update_and_account_isolation(tmp_path, monkeypatch):
     assert client.post("/api/auth/logout").status_code == 200
     register(client, "second@example.com")
     assert client.get("/api/planner/plan").json() == {
-        "configured": False, "plan": None, "tasks": []
+        "configured": False, "has_setup": False, "plan": None, "tasks": []
     }
     forbidden = client.patch(f"/api/planner/tasks/{task['id']}", json={
         "status": "completed", "actual_minutes": 50, "notes": ""
