@@ -43,7 +43,9 @@ def test_provider_order_deduplicates_and_honors_order(monkeypatch):
 
 
 def test_parse_object_accepts_json_fence():
-    assert ai_provider._parse_object('\\x60\\x60\\x60json\\n{"ok": true}\\n\\x60\\x60\\x60') == {"ok": True}
+    assert ai_provider._parse_object('''\x60\x60\x60json
+{"ok": true}
+\x60\x60\x60''') == {"ok": True}
 
 
 def test_parse_object_rejects_non_object():
