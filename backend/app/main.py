@@ -154,7 +154,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_URL, "http://127.0.0.1:3011"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
 
