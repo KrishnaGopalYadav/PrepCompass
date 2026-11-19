@@ -39,7 +39,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="auth-shell">
+    <main className="pc-login-shell"><section className="pc-login-story"><div className="pc-login-logo"><span className="pc-brand-mark"><Compass size={21}/></span><span><b>PrepCompass</b><small>YOUR PREPARATION OS</small></span></div><div className="pc-login-message"><span className="pc-login-eyebrow">PLAN · PREPARE · PROGRESS</span><h1>Make every study hour <em>count.</em></h1><p>A calmer, clearer workspace for your civil services preparation. Bring your goals, study routine and progress into one place.</p><div className="pc-login-points"><span><i>✓</i> Plan for multiple examinations</span><span><i>✓</i> Track focused study sessions</span><span><i>✓</i> Learn from your preparation patterns</span></div></div><div className="pc-login-foot">BUILT FOR THE LONG GAME · YOUR JOURNEY, YOUR PACE</div></section><section className="pc-login-form-side">
       <section className="auth-card">
         <div className="auth-brand"><span className="auth-mark"><Compass size={25} /></span><div><strong>PrepCompass</strong><small>YOUR PREPARATION OS</small></div></div>
         <div className="auth-intro"><span className="auth-eyebrow">YOUR JOURNEY, IN FOCUS</span><h1>{mode === "register" ? "Create your workspace." : "Welcome back."}</h1><p>Your preparation records stay private to your account.</p></div>
@@ -58,7 +58,7 @@ export default function LoginPage() {
         <a className="google-button" href={googleSignInUrl}>Continue with Google</a></>}
         <div className="auth-privacy"><ShieldCheck size={17} /><span>Each account has its own private study history. Google sign-in is optional.</span></div>
       </section>
-      <p className="auth-footer">PREPCOMPASS · PLAN. PREPARE. PROGRESS.</p>
+      
     </main>
   );
 }

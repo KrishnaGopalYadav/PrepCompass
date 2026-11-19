@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import AppShell from "@/components/AppShell";
 import { ArrowLeft, ArrowRight, CalendarDays, Check, CheckCircle2, ChevronRight, Clock3, Compass, GraduationCap, Leaf, Loader2, ShieldCheck, Sparkles, Target, UserRound, BookOpen, Info } from "lucide-react";
 import { getCurrentUser, getExamCatalog, getPlannerOverview, getPlannerSetup, savePlannerSetup, ExamOption, PlannerOverview, PlannerTarget, User } from "@/lib/api";
 
@@ -101,7 +102,7 @@ export default function PlannerPage() {
   if (!user || loading) return <main className="planner-loading"><Loader2 className="spin" size={22} /> Preparing your planner…</main>;
 
   return (
-    <main className="planner-shell">
+    <AppShell userName={user.display_name} title="Exam planner"><main className="planner-shell">
       <aside className="planner-sidebar">
         <Link href="/" className="planner-brand"><span className="planner-brand-mark"><Compass size={21}/></span><span><b>PrepCompass</b><small>YOUR PREPARATION OS</small></span></Link>
         <div className="planner-side-caption">YOUR WORKSPACE</div>
@@ -194,6 +195,6 @@ export default function PlannerPage() {
           <footer className="planner-footer">PREPCOMPASS <span>·</span> PLAN. PREPARE. PROGRESS.</footer>
         </div>
       </section>
-    </main>
+    </main></AppShell>
   );
 }
