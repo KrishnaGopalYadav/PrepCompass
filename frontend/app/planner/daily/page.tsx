@@ -19,6 +19,7 @@ export default function DailyPlanPage() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [actualMinutes, setActualMinutes] = useState<Record<number, string>>({});
 
   const refresh = useCallback(async () => {
     const result = await getGeneratedPlan();
@@ -52,7 +53,12 @@ export default function DailyPlanPage() {
 
   async function completeTask(taskId: number, estimate: number) {
     try {
-      await updatePlanTask(taskId, { status: "completed", actual_minutes: estimate, notes: "" });
+      const actual = Number(actualMinutes[taskId] ?? estimate);
+      if (!Number.isInteger(actual) || actual < 0 || actual > 1440) {
+        setError("Enter actual study time between 0 and 1,440 minutes.");
+        return;
+      }
+      await updatePlanTask(taskId, { status: "completed", actual_minutes: actual, notes: "" });
       await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not update task");
@@ -111,9 +117,15 @@ export default function DailyPlanPage() {
                 <h3>{task.topic}</h3><p>{task.instruction}</p>
                 <div className="daily-task-foot"><span><Clock3 size={13}/> {minutes(task.estimated_minutes)}</span><span>Selected exam context: {task.exam_ids.join(", ")}</span></div>
               </div>
-              <button className="daily-task-action" disabled={task.status==="completed"} onClick={()=>completeTask(task.id,task.estimated_minutes)}>
-                {task.status==="completed" ? <><CheckCircle2 size={15}/> Completed</> : "Mark complete"}
-              </button>
+              <div className="daily-task-controls">
+                <label>ACTUAL MINUTES
+                  <input type="number" min="0" max="1440" value={actualMinutes[task.id] ?? String(task.estimated_minutes)}
+                    onChange={e=>setActualMinutes(prev=>({...prev,[task.id]:e.target.value}))} disabled={task.status==="completed"}/>
+                </label>
+                <button className="daily-task-action" disabled={task.status==="completed"} onClick={()=>completeTask(task.id,task.estimated_minutes)}>
+                  {task.status==="completed" ? <><CheckCircle2 size={15}/> Completed</> : "Mark complete"}
+                </button>
+              </div>
             </article>)}
           </section>)}
         </div>
