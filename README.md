@@ -152,5 +152,9 @@ Exam rules and eligibility must always be checked against the notification for t
 
 See [Verified Syllabus Catalogue — Sources and API](docs/VERIFIED_SYLLABUS_CATALOG.md) for source cycles, optional-subject rules, APIs and limitations.\n\nSee [Personalised Exam Planner — Product and Technical Design](docs/PERSONALISED_EXAM_PLANNER_DESIGN.md) for the detailed user journey, data model, planning engine, acceptance criteria and delivery milestones.
 
+## AI knowledge and content engine
+
+See [AI Knowledge, RAG, Adaptive Learning and GS Content Engine](docs/AI_KNOWLEDGE_RAG_AND_CONTENT_ENGINE.md) for the architecture, source governance, data model, daily ingestion pipeline, PYQ/mock strategy, adaptive learning loop, daily/weekly/monthly GS publishing workflow, APIs, quality gates and phased implementation plan. This is the next major product capability; it is a design document, not a claim that these features are already implemented.
+
 ## Privacy
 Do not commit real study records, database files, API keys or personal secrets. Local database files are ignored by Git.
