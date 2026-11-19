@@ -117,13 +117,17 @@ The initial product plan is based on the following preparation context and can b
 
 Exam rules and eligibility must always be checked against the notification for the relevant examination year. UPPSC PCS does not have an optional subject; ACF/RFO and IFoS have their own subject requirements.
 
-## Roadmap
+## Product roadmap
+
 1. Foundation and study-session tracking
-2. Personalised exam calendar, daily planner and syllabus tracker
-3. Revision scheduling and resource library
-4. Topic-wise tests, mock tests and performance analytics
-5. Progress export/import and ChatGPT study-coach workflow
-6. Backup, restore, usability and reliability improvements
+2. Multi-user accounts and secure authentication
+3. **Personalised exam planner:** exam selection, attempt-year targets, candidate availability, day-by-day plans, resource mapping, syllabus tracking and plan preview
+4. Daily execution: calendar, task logging, timers, revision scheduling and resource library
+5. Progress validation: planned-versus-actual analytics, topic mastery, tests/mocks and adaptive replanning
+6. Progress export/import, ChatGPT study-coach workflow, backup and restore
+7. Cross-platform packaging: installable web app (PWA), Android app, iPhone/iPad app and macOS app, with a common product experience
+
+See [Personalised Exam Planner — Product and Technical Design](docs/PERSONALISED_EXAM_PLANNER_DESIGN.md) for the detailed user journey, data model, planning engine, acceptance criteria and delivery milestones.
 
 ## Privacy
 Do not commit real study records, database files, API keys or personal secrets. Local database files are ignored by Git.
