@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/multi-user-auth
+      - feature/personalized-exam-planner
   pull_request:
 
 jobs:
