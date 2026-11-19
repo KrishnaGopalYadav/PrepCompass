@@ -1,26 +1,63 @@
-# OpenAI provider setup
+# Free hybrid AI provider setup
 
-PrepCompass uses OpenAI as its primary AI provider through the official Python SDK and Responses API. The integration is server-side only.
+PrepCompass uses a free-inference-only provider router. It does not call OpenAI and has no paid-provider fallback.
 
-## Local configuration
+## Provider order
 
-1. Copy `backend/.env.example` to `backend/.env` (or merge the two OpenAI entries into your existing file).
-2. Set `OPENAI_API_KEY` to an API key created in your OpenAI developer account.
-3. Set `OPENAI_MODEL` to a model available to that API project.
-4. Never put the key in frontend environment variables, source control, screenshots, logs or chat.
-5. Rebuild the backend container after changing environment configuration.
+Set `AI_PROVIDER` to the primary provider and `AI_FALLBACK_PROVIDERS` to an ordered comma-separated list:
 
-## Readiness endpoint
+- `gemini`: Google Gemini Developer API. Free-tier availability, model access, rate limits and data-use terms are controlled by Google and can change.
+- `groq`: GroqCloud hosted inference. Use only models currently available on its free developer tier; limits can change.
+- `ollama`: local inference on your own Mac. No hosted inference charge; model downloads use disk space and generation uses local memory/CPU/GPU.
 
-After signing in, call `GET /api/ai/status`. It reports provider name, configured status, selected model and supported application capabilities. It never returns the API key.
+When a provider fails (including quota/rate-limit errors), the router tries the next configured provider. If all configured providers fail, the API returns a safe provider error. It never falls back to a paid OpenAI endpoint.
 
-A configured provider does not mean all agent features are implemented. PYQ ingestion, exam-specific mock blueprints, descriptive evaluation, current-affairs research, magazine publishing and adaptive planning are delivered in separate tested milestones. Until then, do not describe them as live.
+## Configuration
 
-## Security and operations
+Copy `backend/.env.example` to `backend/.env` or merge these settings into the existing file. Preserve your database and Google OAuth settings.
 
-- Keep API calls on the FastAPI backend.
-- Use a dedicated API project/key for PrepCompass and set project budget/usage alerts.
-- Restrict access to the local machine/network as appropriate.
-- Rotate/revoke exposed keys immediately.
-- Store model, prompt version, request ID, usage and output validation status for future agent-run auditing.
-- Use bounded workflows and approved application services; do not allow unrestricted model tool execution.
+```env
+AI_PROVIDER=gemini
+AI_FALLBACK_PROVIDERS=groq,ollama
+
+GEMINI_API_KEY=
+GEMINI_MODEL=
+
+GROQ_API_KEY=
+GROQ_MODEL=
+
+OLLAMA_BASE_URL=http://host.docker.internal:11434/v1
+OLLAMA_MODEL=
+```
+
+Get a Gemini key from [Google AI Studio](https://aistudio.google.com/). Get a Groq key from [Groq Console](https://console.groq.com/). Select model IDs that are currently available to your account and free tier; model availability and quotas are not guaranteed. Do not paste keys into chat, frontend variables, source control or logs.
+
+## Ollama on macOS with Docker
+
+1. Install and start [Ollama](https://ollama.com/).
+2. Pull a model suitable for your Mac's available memory, for example with `ollama pull qwen2.5:3b` (choose a model appropriate to your hardware).
+3. Set `OLLAMA_MODEL` to the exact model tag shown by `ollama list`.
+4. Keep `OLLAMA_BASE_URL=http://host.docker.internal:11434/v1`. This lets the API container reach Ollama running on the Mac host.
+5. Confirm Ollama is reachable from the host with `curl http://localhost:11434/api/tags`.
+
+## Apply configuration
+
+After editing `backend/.env`, recreate the API container:
+
+```bash
+docker compose up -d --build --force-recreate api
+```
+
+Sign in and open `http://localhost:8011/api/ai/status`. It reports provider readiness and model names, never credentials. Readiness means configuration exists; it does not guarantee provider quota or network availability.
+
+## Live smoke test
+
+```bash
+docker compose exec api python -c 'import asyncio; from app.ai_provider import generate_json; print(asyncio.run(generate_json(instructions="Return a JSON object with status set to ok.", input_data={"test":"connectivity"}, max_output_tokens=200)))'
+```
+
+A successful result includes `data`, the provider actually used, and its model. If hosted free quotas are exhausted, the router attempts the next configured provider, including Ollama if it is configured and running.
+
+## Privacy and exam-content quality
+
+Do not send passwords, session tokens, API keys or unnecessary personal data to an AI provider. Review each provider's current free-tier data-use and retention terms before sending study records. AI-generated questions and feedback are drafts, not official PYQs or authoritative exam notifications. Validate exam facts against official UPSC/UPPSC sources.
