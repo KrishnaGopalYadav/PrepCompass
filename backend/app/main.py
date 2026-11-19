@@ -556,7 +556,11 @@ def planner_get_plan(user=Depends(current_user)):
             (user["id"],),
         ).fetchone()
         if not plan:
-            return {"configured": False, "plan": None, "tasks": []}
+            has_setup = connection.execute(
+                "SELECT EXISTS(SELECT 1 FROM planner_profiles p JOIN candidate_exam_targets t ON t.user_id=p.user_id WHERE p.user_id=?)",
+                (user["id"],),
+            ).fetchone()[0]
+            return {"configured": False, "has_setup": bool(has_setup), "plan": None, "tasks": []}
         tasks = connection.execute(
             """SELECT id, task_date, sequence, subject, topic_id, topic, task_type, instruction,
                       estimated_minutes, exam_ids_json, syllabus_status, status, actual_minutes, notes
@@ -570,7 +574,7 @@ def planner_get_plan(user=Depends(current_user)):
         item = dict(row)
         item["exam_ids"] = json.loads(item.pop("exam_ids_json"))
         task_data.append(item)
-    return {"configured": True, "plan": plan_data, "tasks": task_data}
+    return {"configured": True, "has_setup": True, "plan": plan_data, "tasks": task_data}
 
 
 @app.patch("/api/planner/tasks/{task_id}")
