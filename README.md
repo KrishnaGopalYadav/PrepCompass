@@ -16,7 +16,15 @@ PrepCompass is a local-first study management application for integrated prepara
 - Database: SQLite
 - Local runtime: Docker Compose
 
-## Current milestone: Planner B — rolling daily plan generation and task progress
+## Current milestone: Planner C — source-linked syllabus and optional-subject catalogue
+- Versioned syllabus sources for CSE 2026, IFoS 2026 and UPPSC PCS / ACF-RFO 2025
+- Stage and paper outline nodes with source locators and source URLs
+- Explicit crosswalks for IFoS/CSE preliminary screening and UPPSC common prelims
+- Account-scoped optional-subject selection: one for CSE, two for IFoS and ACF/RFO
+- Server-side validation of prohibited IFoS / ACF-RFO optional combinations
+- Syllabus browser at `/syllabus`; historical sources are explicitly marked incomplete and not a substitute for 2028 notices
+
+## Previous milestone: Planner B — rolling daily plan generation and task progress
 - Generate a deterministic, rolling 28-day schedule from the saved preparation profile
 - Respect selected study weekdays and reserve a 15% daily capacity buffer
 - Create focused learning, active-recall and practice blocks
@@ -59,7 +67,7 @@ docker compose up --build
 ```
 
 Open:
-- Frontend: http://localhost:3011
+- Frontend: http://localhost:3011\n- Syllabus browser: http://localhost:3011/syllabus
 - API health: http://localhost:8011/api/health
 - API documentation: http://localhost:8011/docs
 
@@ -136,13 +144,13 @@ Exam rules and eligibility must always be checked against the notification for t
 
 1. Foundation and study-session tracking
 2. Multi-user accounts and secure authentication
-3. **Personalised exam planner:** exam selection, attempt-year targets, candidate availability and rolling daily schedules (starter topics currently provisional); next: verified syllabus mapping and resource catalogue
+3. **Personalised exam planner:** exam selection, attempt-year targets, candidate availability and rolling daily schedules (starter topics currently provisional); source-linked syllabus outline baseline added; next: complete 2028-verified topic trees and resource catalogue
 4. Daily execution: calendar, task logging, timers, revision scheduling and resource library
 5. Progress validation: planned-versus-actual analytics, topic mastery, tests/mocks and adaptive replanning
 6. Progress export/import, ChatGPT study-coach workflow, backup and restore
 7. Cross-platform packaging: installable web app (PWA), Android app, iPhone/iPad app and macOS app, with a common product experience
 
-See [Personalised Exam Planner — Product and Technical Design](docs/PERSONALISED_EXAM_PLANNER_DESIGN.md) for the detailed user journey, data model, planning engine, acceptance criteria and delivery milestones.
+See [Verified Syllabus Catalogue — Sources and API](docs/VERIFIED_SYLLABUS_CATALOG.md) for source cycles, optional-subject rules, APIs and limitations.\n\nSee [Personalised Exam Planner — Product and Technical Design](docs/PERSONALISED_EXAM_PLANNER_DESIGN.md) for the detailed user journey, data model, planning engine, acceptance criteria and delivery milestones.
 
 ## Privacy
 Do not commit real study records, database files, API keys or personal secrets. Local database files are ignored by Git.
