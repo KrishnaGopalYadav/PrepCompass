@@ -9,9 +9,9 @@ def test_provider_status_never_exposes_secrets(monkeypatch):
     monkeypatch.setenv("AI_PROVIDER", "gemini")
     monkeypatch.setenv("AI_FALLBACK_PROVIDERS", "groq,ollama")
     monkeypatch.setenv("GEMINI_API_KEY", "gemini-secret")
-    monkeypatch.setenv("GEMINI_MODEL", "gemini-test")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-2.5-flash")
     monkeypatch.setenv("GROQ_API_KEY", "groq-secret")
-    monkeypatch.setenv("GROQ_MODEL", "groq-test")
+    monkeypatch.setenv("GROQ_MODEL", "openai/gpt-oss-120b")
     monkeypatch.setenv("OLLAMA_MODEL", "local-test")
 
     result = ai_provider.provider_status()
@@ -66,9 +66,9 @@ def test_generate_json_falls_back_from_gemini_to_groq(monkeypatch):
     monkeypatch.setenv("AI_PROVIDER", "gemini")
     monkeypatch.setenv("AI_FALLBACK_PROVIDERS", "groq,ollama")
     monkeypatch.setenv("GEMINI_API_KEY", "test-gemini-key")
-    monkeypatch.setenv("GEMINI_MODEL", "test-gemini-model")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-2.5-flash")
     monkeypatch.setenv("GROQ_API_KEY", "test-groq-key")
-    monkeypatch.setenv("GROQ_MODEL", "test-groq-model")
+    monkeypatch.setenv("GROQ_MODEL", "openai/gpt-oss-20b")
     monkeypatch.delenv("OLLAMA_MODEL", raising=False)
 
     async def fail_gemini(*args, **kwargs):
@@ -88,7 +88,7 @@ def test_generate_json_falls_back_from_gemini_to_groq(monkeypatch):
 
     assert result["data"] == {"status": "ok"}
     assert result["provider"] == "groq"
-    assert result["model"] == "test-groq-model"
+    assert result["model"] == "openai/gpt-oss-20b"
 
 
 def test_generate_json_never_uses_unconfigured_or_paid_provider(monkeypatch):
