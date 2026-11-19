@@ -38,3 +38,24 @@ export const getDashboard = () => request<DashboardData>("/api/dashboard");
 export const saveStudySession = (payload: {
   subject: string; topic: string; duration_minutes: number; studied_on: string; notes: string;
 }) => request<StudySession>("/api/study-sessions", { method: "POST", body: JSON.stringify(payload) });
+
+ 
+export type ExamOption = {
+  exam_id: string; name: string; short_name: string; conducting_body: string;
+  description: string; syllabus_status: string;
+};
+export type PlannerTarget = { exam_id: string; attempt_year: number; priority: number };
+export type PlannerProfile = {
+  preparation_start_date: string; medium: string; daily_hours: number;
+  current_level: "beginner" | "intermediate" | "advanced";
+  selected_days: number[]; rest_day: string;
+};
+export type PlannerOverview = {
+  configured: boolean; profile: (PlannerProfile & { selected_days: number[] }) | null;
+  exam_targets: (PlannerTarget & { name: string; short_name: string; syllabus_status: string })[];
+};
+export const getExamCatalog = () => request<ExamOption[]>("/api/planner/catalog");
+export const getPlannerSetup = () => request<{ profile: PlannerProfile | null; exam_targets: PlannerTarget[] }>("/api/planner/setup");
+export const savePlannerSetup = (payload: PlannerProfile & { exam_targets: PlannerTarget[] }) =>
+  request<{ status: string; exam_count: number; message: string }>("/api/planner/setup", { method: "POST", body: JSON.stringify(payload) });
+export const getPlannerOverview = () => request<PlannerOverview>("/api/planner/overview");
