@@ -104,7 +104,7 @@ async def _generate_gemini(model: str, key: str, instructions: str, input_data: 
         "contents": [{"role": "user", "parts": [{"text": json.dumps(input_data, ensure_ascii=False)}]}],
         "generationConfig": {"responseMimeType": "application/json", "maxOutputTokens": max_output_tokens},
     }
-    result = await _post_json(url, headers={"Content-Type": "application/json"}, params={"key": key}, payload=payload)
+    result = await _post_json(url, headers={"Content-Type": "application/json", "x-goog-api-key": key}, payload=payload)
     parts = result.get("candidates", [{}])[0].get("content", {}).get("parts", [])
     raw = "".join(part.get("text", "") for part in parts)
     if not raw:
