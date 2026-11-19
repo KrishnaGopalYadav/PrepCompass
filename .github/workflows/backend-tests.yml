@@ -7,6 +7,7 @@ on:
       - feature/multi-user-auth
       - feature/personalized-exam-planner
       - feature/daily-plan-generation
+      - feature/verified-syllabus-catalog
   pull_request:
 
 jobs:
