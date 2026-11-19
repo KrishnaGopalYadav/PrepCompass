@@ -17,6 +17,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from app.planner_engine import ensure_planning_schema, generate_rolling_plan
+
 DATABASE_PATH = os.getenv("DATABASE_PATH", str(Path(__file__).resolve().parents[1] / "data" / "prepcompass.db"))
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3011").rstrip("/")
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8011").rstrip("/")
@@ -138,6 +140,7 @@ def initialise_database():
 
 
 initialise_database()
+ensure_planning_schema(DATABASE_PATH)
 
 app = FastAPI(
     title="PrepCompass API",
@@ -512,7 +515,7 @@ def save_planner_setup(payload: PlannerSetupPayload, user=Depends(current_user))
             "INSERT INTO candidate_exam_targets(user_id, exam_id, attempt_year, priority, created_at) VALUES (?, ?, ?, ?, ?)",
             [(user["id"], target.exam_id, target.attempt_year, target.priority, now) for target in payload.exam_targets],
         )
-    return {"status": "saved", "exam_count": len(payload.exam_targets), "message": "Your preparation profile is saved. Detailed daily plan generation is the next planner milestone."}
+    return {"status": "saved", "exam_count": len(payload.exam_targets), "message": "Your preparation profile is saved. Open the daily planner to generate your rolling study schedule."}
 
 @app.get("/api/planner/overview")
 def planner_overview(user=Depends(current_user)):
@@ -524,3 +527,70 @@ def planner_overview(user=Depends(current_user)):
     if not profile:
         return {"configured": False, "profile": None, "exam_targets": []}
     return {"configured": True, "profile": {**dict(profile), "selected_days": json.loads(profile["selected_days"])}, "exam_targets": [dict(row) for row in targets]}
+
+
+class GeneratePlanPayload(BaseModel):
+    horizon_days: int = Field(default=28, ge=7, le=56)
+
+
+class TaskUpdatePayload(BaseModel):
+    status: str = Field(pattern="^(planned|in_progress|completed|partial|skipped)$")
+    actual_minutes: int = Field(default=0, ge=0, le=1440)
+    notes: str = Field(default="", max_length=2000)
+
+
+@app.post("/api/planner/generate")
+def planner_generate(payload: GeneratePlanPayload, user=Depends(current_user)):
+    try:
+        result = generate_rolling_plan(DATABASE_PATH, user["id"], payload.horizon_days)
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+
+@app.get("/api/planner/plan")
+def planner_get_plan(user=Depends(current_user)):
+    with db_connection() as connection:
+        plan = connection.execute(
+            "SELECT id, version, start_date, end_date, status, assumptions_json, created_at FROM study_plans WHERE user_id=? AND status='active' ORDER BY version DESC LIMIT 1",
+            (user["id"],),
+        ).fetchone()
+        if not plan:
+            has_setup = connection.execute(
+                "SELECT EXISTS(SELECT 1 FROM planner_profiles p JOIN candidate_exam_targets t ON t.user_id=p.user_id WHERE p.user_id=?)",
+                (user["id"],),
+            ).fetchone()[0]
+            return {"configured": False, "has_setup": bool(has_setup), "plan": None, "tasks": []}
+        tasks = connection.execute(
+            """SELECT id, task_date, sequence, subject, topic_id, topic, task_type, instruction,
+                      estimated_minutes, exam_ids_json, syllabus_status, status, actual_minutes, notes
+               FROM plan_tasks WHERE user_id=? AND plan_id=? ORDER BY task_date, sequence""",
+            (user["id"], plan["id"]),
+        ).fetchall()
+    plan_data = dict(plan)
+    plan_data["assumptions"] = json.loads(plan_data.pop("assumptions_json"))
+    task_data = []
+    for row in tasks:
+        item = dict(row)
+        item["exam_ids"] = json.loads(item.pop("exam_ids_json"))
+        task_data.append(item)
+    return {"configured": True, "has_setup": True, "plan": plan_data, "tasks": task_data}
+
+
+@app.patch("/api/planner/tasks/{task_id}")
+def planner_update_task(task_id: int, payload: TaskUpdatePayload, user=Depends(current_user)):
+    with db_connection() as connection:
+        result = connection.execute(
+            """UPDATE plan_tasks SET status=?, actual_minutes=?, notes=?,
+               completed_at=CASE WHEN ?='completed' THEN ? ELSE NULL END
+               WHERE id=? AND user_id=?""",
+            (payload.status, payload.actual_minutes, payload.notes.strip(), payload.status,
+             utc_now().isoformat(), task_id, user["id"]),
+        )
+        if result.rowcount != 1:
+            raise HTTPException(status_code=404, detail="Task not found")
+        row = connection.execute(
+            "SELECT id, task_date, topic, status, estimated_minutes, actual_minutes, notes FROM plan_tasks WHERE id=? AND user_id=?",
+            (task_id, user["id"]),
+        ).fetchone()
+    return dict(row)

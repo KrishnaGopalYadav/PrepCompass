@@ -16,7 +16,15 @@ PrepCompass is a local-first study management application for integrated prepara
 - Database: SQLite
 - Local runtime: Docker Compose
 
-## Current milestone: Planner Foundation — multi-exam setup and candidate profile
+## Current milestone: Planner B — rolling daily plan generation and task progress
+- Generate a deterministic, rolling 28-day schedule from the saved preparation profile
+- Respect selected study weekdays and reserve a 15% daily capacity buffer
+- Create focused learning, active-recall and practice blocks
+- Persist versioned plans and account-scoped daily tasks in SQLite
+- View tasks by date and mark work completed with actual minutes
+- Clearly label starter topics as provisional until official syllabus sources are verified
+
+## Previous milestone: Planner Foundation — multi-exam setup and candidate profile
 - Account-scoped exam catalogue for UPSC CSE, IFoS, UPPSC PCS and ACF/RFO
 - Select multiple exams with independent attempt years
 - Save preparation start date, study medium, weekly study days, daily hours and current level
@@ -128,7 +136,7 @@ Exam rules and eligibility must always be checked against the notification for t
 
 1. Foundation and study-session tracking
 2. Multi-user accounts and secure authentication
-3. **Personalised exam planner:** exam selection, attempt-year targets, candidate availability, day-by-day plans, resource mapping, syllabus tracking and plan preview
+3. **Personalised exam planner:** exam selection, attempt-year targets, candidate availability and rolling daily schedules (starter topics currently provisional); next: verified syllabus mapping and resource catalogue
 4. Daily execution: calendar, task logging, timers, revision scheduling and resource library
 5. Progress validation: planned-versus-actual analytics, topic mastery, tests/mocks and adaptive replanning
 6. Progress export/import, ChatGPT study-coach workflow, backup and restore

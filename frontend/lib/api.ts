@@ -59,3 +59,29 @@ export const getPlannerSetup = () => request<{ profile: PlannerProfile | null; e
 export const savePlannerSetup = (payload: PlannerProfile & { exam_targets: PlannerTarget[] }) =>
   request<{ status: string; exam_count: number; message: string }>("/api/planner/setup", { method: "POST", body: JSON.stringify(payload) });
 export const getPlannerOverview = () => request<PlannerOverview>("/api/planner/overview");
+
+export type GeneratedPlanTask = {
+  id: number; task_date: string; sequence: number; subject: string; topic_id: string;
+  topic: string; task_type: string; instruction: string; estimated_minutes: number;
+  exam_ids: string[]; syllabus_status: string; status: string; actual_minutes: number; notes: string;
+};
+export type GeneratedPlan = {
+  id: number; version: number; start_date: string; end_date: string; status: string;
+  assumptions: { notice: string; syllabus_status: string; [key: string]: unknown };
+};
+export type GeneratedPlanResponse = {
+  configured: boolean; has_setup: boolean; plan: GeneratedPlan | null; tasks: GeneratedPlanTask[];
+};
+export const generateStudyPlan = (horizon_days = 28) =>
+  request<{ plan_id: number; version: number; start_date: string; end_date: string;
+    scheduled_days: number; task_count: number; planned_minutes: number;
+    assumptions: GeneratedPlan["assumptions"] }>(
+      "/api/planner/generate", { method: "POST", body: JSON.stringify({ horizon_days }) }
+    );
+export const getGeneratedPlan = () => request<GeneratedPlanResponse>("/api/planner/plan");
+export const updatePlanTask = (taskId: number, payload: {
+  status: "planned" | "in_progress" | "completed" | "partial" | "skipped";
+  actual_minutes: number; notes: string;
+}) => request<{ id: number; status: string; actual_minutes: number }>(
+  `/api/planner/tasks/${taskId}`, { method: "PATCH", body: JSON.stringify(payload) }
+);

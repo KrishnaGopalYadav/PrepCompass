@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/personalized-exam-planner
+      - feature/daily-plan-generation
   pull_request:
 
 jobs:

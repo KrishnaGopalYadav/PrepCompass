@@ -6,6 +6,7 @@ on:
       - main
       - feature/multi-user-auth
       - feature/personalized-exam-planner
+      - feature/daily-plan-generation
   pull_request:
 
 jobs:
