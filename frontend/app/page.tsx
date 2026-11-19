@@ -1,8 +1,9 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Activity, ArrowUpRight, BookOpen, CalendarDays, CheckCircle2, Clock3, Compass, GraduationCap, Plus, RefreshCw, Target, Timer, TrendingUp } from "lucide-react";
-import { DashboardData, getDashboard, saveStudySession } from "@/lib/api";
+import { DashboardData, getDashboard, getCurrentUser, logoutAccount, saveStudySession, User } from "@/lib/api";
 
 const subjects = ["General Studies", "Sociology", "Forestry", "Geology", "CSAT", "Current Affairs", "UPPSC-specific", "Essay", "Ethics"];
 
@@ -13,6 +14,9 @@ function minutesLabel(minutes: number) {
 }
 
 export default function Home() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -36,7 +40,15 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    getCurrentUser().then(setUser).catch(() => router.replace("/login")).finally(() => setAuthChecked(true));
+  }, [router]);
+
+  useEffect(() => { if (user) void refresh(); }, [user, refresh]);
+
+  async function handleLogout() {
+    try { await logoutAccount(); } finally { router.replace("/login"); }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -62,6 +74,8 @@ export default function Home() {
   const todayPercent = data ? Math.min(100, Math.round(data.today.studied_minutes / data.today.goal_minutes * 100)) : 0;
   const weekPercent = data ? Math.min(100, Math.round(data.this_week.studied_minutes / data.this_week.goal_minutes * 100)) : 0;
 
+  if (!authChecked || !user) return <main className="auth-loading">Loading your private workspace…</main>;
+
   return (
     <main className="app-shell">
       <aside className="sidebar">
@@ -70,13 +84,13 @@ export default function Home() {
         <a className="nav-item active" href="#overview"><Activity size={17} /> Overview</a>
         <a className="nav-item" href="#study-log"><Clock3 size={17} /> Study log <span className="soon">LIVE</span></a>
         <a className="nav-item muted" href="#roadmap"><BookOpen size={17} /> Syllabus tracker</a>
-        <a className="nav-item muted" href="#roadmap"><CalendarDays size={17} /> Study planner</a>
+        <a className="nav-item" href="/planner"><CalendarDays size={17} /> Exam planner <span className="soon">NEW</span></a>
         <a className="nav-item muted" href="#roadmap"><Target size={17} /> Tests & revision</a>
-        <div className="sidebar-bottom"><div className="profile-chip"><div className="avatar">K</div><div><strong>Your workspace</strong><span>Local profile</span></div></div><p>Your data stays on this device.</p></div>
+        <div className="sidebar-bottom"><div className="profile-chip"><div className="avatar">K</div><div><strong>{user.display_name}</strong><span>{user.email}</span></div></div><p>Your study records are private to your account.</p></div>
       </aside>
 
       <section className="main-panel">
-        <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> Overview</div><div className="top-actions"><span className="local-pill"><span /> LOCAL MODE</span><button className="icon-button" onClick={() => { setLoading(true); void refresh(); }} aria-label="Refresh dashboard"><RefreshCw size={17} /></button><div className="avatar small">K</div></div></header>
+        <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> Overview</div><div className="top-actions"><span className="local-pill"><span /> LOCAL MODE</span><button className="icon-button" onClick={() => { setLoading(true); void refresh(); }} aria-label="Refresh dashboard"><RefreshCw size={17} /></button><div className="avatar small">{user.display_name.slice(0, 1).toUpperCase()}</div><button className="logout-button" onClick={handleLogout}>Sign out</button></div></header>
         <div className="content">
           <section className="welcome-row" id="overview"><div><div className="eyebrow">WEDNESDAY, 18 NOVEMBER 2026</div><h1>Your journey, <em>in focus.</em></h1><p>A little progress every day adds up to something extraordinary.</p></div><div className="target-tag"><Target size={17} /><span>MISSION 2028</span></div></section>
 
