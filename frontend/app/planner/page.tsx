@@ -124,7 +124,7 @@ export default function PlannerPage() {
             <section className="planner-saved-banner">
               <div className="planner-saved-icon"><CheckCircle2 size={21}/></div>
               <div><b>You have a preparation profile</b><p>{overview.exam_targets.map(t => t.short_name + " " + t.attempt_year).join(" · ")} · {overview.profile?.daily_hours} hours/day</p></div>
-              <button onClick={() => setStep(2)}>Edit profile <ArrowRight size={14}/></button>
+              <div className="planner-saved-actions"><Link href="/planner/daily">View daily plan <ArrowRight size={14}/></Link><button onClick={() => setStep(2)}>Edit profile <ArrowRight size={14}/></button></div>
             </section>
           )}
 
@@ -172,7 +172,7 @@ export default function PlannerPage() {
               </section>}
 
               {step === 4 && <section className="planner-success">
-                <div className="planner-success-mark"><CheckCircle2 size={32}/></div><span>PROFILE SAVED</span><h2>Your preparation journey has a starting point.</h2><p>Your exam targets and study preferences are saved to your private PrepCompass workspace.</p>
+                <div className="planner-success-mark"><CheckCircle2 size={32}/></div><span>PROFILE SAVED</span><h2>Your preparation journey has a starting point.</h2><p>Your exam targets and study preferences are saved to your private PrepCompass workspace.</p><Link href="/planner/daily" className="planner-primary daily-plan-link">Generate and view daily plan <ArrowRight size={16}/></Link>
                 <div className="planner-success-summary">{overview?.exam_targets.map(t=><span key={t.exam_id}>{t.short_name} · {t.attempt_year}</span>)}</div>
                 <div className="planner-next-box"><b>Coming in the next planner milestone</b><p>Verified syllabus coverage, day-by-day schedule generation, recommended resources, revision cycles and progress validation.</p></div>
                 <button className="planner-primary" onClick={()=>router.push("/")}>Go to my dashboard <ArrowRight size={16}/></button>
