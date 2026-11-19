@@ -83,3 +83,22 @@ def test_acf_rfo_optional_subjects_and_user_isolation(tmp_path, monkeypatch):
     client.post("/api/auth/logout")
     register(client, "other@example.com")
     assert client.get("/api/syllabus/optional-subjects?exam_id=uppsc_acf_rfo").status_code == 404
+
+
+def test_cse_optional_subject_is_one_and_sociology_can_be_saved(tmp_path, monkeypatch):
+    client = make_client(tmp_path, monkeypatch)
+    register(client, "cse@example.com")
+    add_target(client, "upsc_cse")
+
+    options = client.get("/api/syllabus/optional-subjects?exam_id=upsc_cse").json()
+    assert options["required_count"] == 1
+    assert "sociology" in {item["subject_code"] for item in options["options"]}
+
+    saved = client.put("/api/syllabus/optional-subjects", json={
+        "exam_id": "upsc_cse", "subjects": ["sociology"]
+    })
+    assert saved.status_code == 200
+    invalid = client.put("/api/syllabus/optional-subjects", json={
+        "exam_id": "upsc_cse", "subjects": ["sociology", "geography"]
+    })
+    assert invalid.status_code == 422
