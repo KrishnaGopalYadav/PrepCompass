@@ -85,3 +85,28 @@ def test_generate_requires_setup_and_valid_horizon(tmp_path, monkeypatch):
     register(client, "empty@example.com")
     assert client.post("/api/planner/generate", json={"horizon_days": 28}).status_code == 422
     assert client.post("/api/planner/generate", json={"horizon_days": 100}).status_code == 422
+
+
+def test_regeneration_versions_plan_without_deleting_old_tasks(tmp_path, monkeypatch):
+    client = client_for(tmp_path, monkeypatch)
+    register(client, "versions@example.com")
+    assert configure(client).status_code == 200
+
+    first = client.post("/api/planner/generate", json={"horizon_days": 7}).json()
+    first_tasks = client.get("/api/planner/plan").json()["tasks"]
+    second = client.post("/api/planner/generate", json={"horizon_days": 14}).json()
+
+    assert second["version"] == first["version"] + 1
+    assert second["plan_id"] != first["plan_id"]
+    with main.db_connection() as connection:
+        old_plan = connection.execute(
+            "SELECT status FROM study_plans WHERE id=? AND user_id=?",
+            (first["plan_id"], 1),
+        ).fetchone()
+        old_count = connection.execute(
+            "SELECT COUNT(*) FROM plan_tasks WHERE plan_id=?",
+            (first["plan_id"],),
+        ).fetchone()[0]
+    assert old_plan["status"] == "superseded"
+    assert old_count == len(first_tasks)
+    assert client.get("/api/planner/plan").json()["plan"]["version"] == second["version"]
