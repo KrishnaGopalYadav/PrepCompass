@@ -58,7 +58,7 @@ export default function LoginPage() {
         <a className="google-button" href={googleSignInUrl}>Continue with Google</a></>}
         <div className="auth-privacy"><ShieldCheck size={17} /><span>Each account has its own private study history. Google sign-in is optional.</span></div>
       </section>
-      
+      </section>
     </main>
   );
 }
