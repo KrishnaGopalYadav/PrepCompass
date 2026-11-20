@@ -157,6 +157,7 @@ See [Verified Syllabus Catalogue — Sources and API](docs/VERIFIED_SYLLABUS_CAT
 - [Stage 1 — Repository Audit and Verified Baseline](docs/STAGE_1_REPOSITORY_AUDIT.md)
 - [Stage 2 — Content and Data Foundation](docs/STAGE_2_CONTENT_DATA_FOUNDATION.md)
 - [Starter GS / exam topic taxonomy](data/catalogs/gs_topic_taxonomy.json)
+- [Topic-to-source learning map](data/catalogs/resource_learning_map.json)
 - Authenticated resource registry: `GET /api/resources/sources`
 - Authenticated PYQ discovery catalogue: `GET /api/resources/pyqs`
 
