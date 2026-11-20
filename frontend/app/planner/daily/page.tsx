@@ -129,5 +129,5 @@ export default function DailyPlanPage() {
         </div>
       </>}
     </section>
-  </section></AppShell>;
+  </AppShell>;
 }
