@@ -27,7 +27,7 @@ The catalogue intentionally stores source metadata and links. It does not claim 
 
 Observed UPPSC years in the portal at catalogue preparation include 2025, 2024, 2023, 2021, 2020, 2018 and 2017. These are years shown by the portal, not proof that every paper for every exam exists for every year. Some entries have a visible-until date. The connector must discover current links rather than construct guessed PDF URLs.
 
-UPSC current and archive portals contain paper listings across examinations. The archive includes CSE Mains GS and Essay papers for historical cycles. The official portal should be queried at ingestion time; do not freeze a claimed complete range into the product.
+At the time of this review, the UPSC current listing exposed CSE Prelims GS-I/GS-II and CSE Mains GS/Essay/optional paper groups for 2026, 2025 and 2024, and IFoS Main papers (including Forestry, Geology, General English and General Knowledge) for 2025 and 2024. These are observed portal years, not a claim that every optional paper is present or acquired. The official portal must still be queried at ingestion time; dynamic discovery is the source of truth.
 
 ## 3. Source hierarchy and recommended resource universe
 
