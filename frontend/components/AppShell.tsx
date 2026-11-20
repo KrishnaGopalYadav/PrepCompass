@@ -195,7 +195,7 @@ export default function AppShell({ children, userName, title }: Props) {
             {preparationExpanded && (
               <div className={compact ? "pc-nav-flyout" : "pc-nav-subnav"}>
                 {compact && <div className="pc-nav-flyout-title">PREPARATION</div>}
-                {renderLinks(preparationLinks, compact, mobile)}
+                {renderLinks(preparationLinks, false, mobile)}
               </div>
             )}
           </section>
