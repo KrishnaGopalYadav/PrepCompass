@@ -330,3 +330,10 @@ body,.pc-layout{background:var(--pc-paper);color:var(--pc-ink);transition:backgr
  .pc-settings-grid{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+/* Collapsed navigation flyout must remain visible outside the rail. */
+.pc-sidebar-scroll{overflow:visible}
+.pc-collapsed .pc-nav-group{justify-content:center;padding:0}
+.pc-collapsed .pc-nav-group svg:last-child{display:none}
+.pc-collapsed .pc-sidebar-scroll{overflow:visible}
+.pc-mobile-sidebar .pc-sidebar-scroll{overflow-y:auto;overflow-x:hidden}
