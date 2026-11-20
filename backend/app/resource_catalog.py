@@ -21,7 +21,7 @@ SOURCES = [
     ("mospi-reports", "MoSPI Publications and Reports", "government_statistics", "https://mospi.gov.in/publications-reports", "https://mospi.gov.in/", "official", "monthly", "Economy, social statistics, demography", "Survey reports and official statistical publications; check data dissemination terms."),
     ("data-gov-in", "Open Government Data Platform India", "government_dataset", "https://www.data.gov.in/", "https://www.data.gov.in/", "official", "weekly", "Economy, agriculture, health, environment", "Dataset-level licence/terms and update frequency must be checked before reuse."),
     ("rbi-publications", "Reserve Bank of India Publications", "regulator_report", "https://www.rbi.org.in/scripts/Publications.aspx", "https://www.rbi.org.in/scripts/Publications.aspx", "official", "monthly", "Economy, banking, finance", "Annual reports, monetary policy, financial stability, state finances and handbooks."),
-    ("rbi-db ie", "RBI Database on Indian Economy", "government_dataset", "https://data.rbi.org.in/", "https://data.rbi.org.in/", "official", "monthly", "Macroeconomy, banking, external sector", "Structured time series; capture series ID, unit, base year and reference period."),
+    ("rbi-dbie", "RBI Database on Indian Economy", "government_dataset", "https://data.rbi.org.in/", "https://data.rbi.org.in/", "official", "monthly", "Macroeconomy, banking, external sector", "Structured time series; capture series ID, unit, base year and reference period."),
     ("niti-reports", "NITI Aayog Reports", "government_report", "https://www.niti.gov.in/documents/reports", "https://www.niti.gov.in/", "official", "monthly", "Governance, economy, social sector, SDGs", "Policy reports and indices; capture report edition and methodology."),
     ("moefcc", "Ministry of Environment, Forest and Climate Change", "ministry", "https://moef.gov.in/", "https://moef.gov.in/", "official", "weekly", "Environment, biodiversity, climate, forestry", "Notifications, rules, schemes, reports and national commitments."),
     ("fsi-isfr", "Forest Survey of India — India State of Forest Report", "government_report", "https://www.fsi.nic.in/forest-report-2023", "https://www.fsi.nic.in/reports-publications", "official", "biennial", "IFoS, ACF/RFO, environment", "ISFR 2023 page includes forest/tree/mangrove and carbon-stock datasets."),
@@ -117,7 +117,8 @@ def list_sources(database_path: str, source_type: str | None = None, exam_query:
             params.append(source_type)
         if exam_query:
             query += " AND (exam_scope LIKE ? OR exam_scope LIKE '%GS%')"
-            params.append(f"%{exam_query}%")
+            scope_aliases = {"upsc_cse": "CSE", "upsc_ifos": "IFoS", "uppsc_pcs": "PCS", "uppsc_acf_rfo": "ACF/RFO"}
+            params.append(f"%{scope_aliases.get(exam_query, exam_query)}%")
         query += " ORDER BY authority_level, source_type, title"
         return [dict(row) for row in connection.execute(query, params)]
 
