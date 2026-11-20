@@ -1,0 +1,209 @@
+{
+  "schema_version": "1.0.0",
+  "status": "curated_starting_points_not_a_complete_reading_list",
+  "rules": [
+    "Use official and primary sources for factual grounding; secondary sources are contextual only.",
+    "Every future acquired document must link to source_id and syllabus topic IDs.",
+    "Edition and publication date must be retained for all annual reports and datasets.",
+    "Source recommendations are discovery hints; verify current URL, edition, licence and relevance before ingesting."
+  ],
+  "mappings": [
+    {
+      "topic_domain_id": "gs.history_culture",
+      "priority_sources": [
+        "ncert-textbooks",
+        "epathshala",
+        "upsc-notifications",
+        "uppsc-notifications",
+        "prs"
+      ],
+      "use": [
+        "NCERT chapter catalogue for foundational reading",
+        "Exam notifications and official history/culture publications",
+        "PRS only for relevant legislation/policy context"
+      ]
+    },
+    {
+      "topic_domain_id": "gs.geography",
+      "priority_sources": [
+        "ncert-textbooks",
+        "epathshala",
+        "imd",
+        "data-gov-in",
+        "mospi-reports"
+      ],
+      "use": [
+        "NCERT geography catalogue",
+        "IMD climate and meteorological data",
+        "Official statistical and geospatial datasets where licensed"
+      ]
+    },
+    {
+      "topic_domain_id": "gs.polity_governance",
+      "priority_sources": [
+        "indiacode",
+        "egazette",
+        "supreme-court",
+        "parliament",
+        "cag",
+        "prs"
+      ],
+      "use": [
+        "India Code and Gazette for enacted law and amendments",
+        "Supreme Court for primary judgments",
+        "Parliament/CAG for oversight and accountability",
+        "PRS as secondary analysis cross-checked with primary records"
+      ]
+    },
+    {
+      "topic_domain_id": "gs.economy",
+      "priority_sources": [
+        "indiabudget",
+        "economic-survey",
+        "rbi-publications",
+        "rbi-dbie",
+        "mospi-reports",
+        "data-gov-in",
+        "niti-reports"
+      ],
+      "use": [
+        "Budget and Economic Survey by fiscal year",
+        "RBI reports and time-series with unit/base-year metadata",
+        "MoSPI datasets with survey period and methodology"
+      ]
+    },
+    {
+      "topic_domain_id": "gs.social_justice",
+      "priority_sources": [
+        "mospi-reports",
+        "niti-reports",
+        "pib",
+        "data-gov-in",
+        "up-gov"
+      ],
+      "use": [
+        "Official surveys and outcome indicators",
+        "NITI Aayog policy reports and indices",
+        "Originating ministry releases for scheme rules"
+      ]
+    },
+    {
+      "topic_domain_id": "gs.international_relations",
+      "priority_sources": [
+        "mea",
+        "pib",
+        "parliament"
+      ],
+      "use": [
+        "MEA statements and agreements",
+        "Official summit and multilateral documents",
+        "Parliamentary answers for accountable government positions"
+      ]
+    },
+    {
+      "topic_domain_id": "gs.science_technology",
+      "priority_sources": [
+        "isro",
+        "pib",
+        "moefcc",
+        "data-gov-in"
+      ],
+      "use": [
+        "ISRO mission and programme releases",
+        "Originating ministry and technical-agency material",
+        "Dataset metadata for science indicators"
+      ]
+    },
+    {
+      "topic_domain_id": "gs.environment",
+      "priority_sources": [
+        "moefcc",
+        "fsi-isfr",
+        "icfre-nirantar",
+        "egazette",
+        "imd",
+        "data-gov-in"
+      ],
+      "use": [
+        "MoEFCC notifications, rules and schemes",
+        "FSI ISFR editions and datasets",
+        "ICFRE research with item-level rights review",
+        "IMD climate and hazard information"
+      ]
+    },
+    {
+      "topic_domain_id": "gs.security_disaster",
+      "priority_sources": [
+        "mha",
+        "imd",
+        "pib",
+        "parliament",
+        "cag"
+      ],
+      "use": [
+        "MHA annual reports and official advisories",
+        "IMD warnings and hazard data",
+        "Parliamentary and CAG accountability records"
+      ]
+    },
+    {
+      "topic_domain_id": "gs.ethics",
+      "priority_sources": [
+        "cag",
+        "parliament",
+        "supreme-court",
+        "prs"
+      ],
+      "use": [
+        "CAG audit cases and accountability reports",
+        "Judgments and parliamentary committee records",
+        "Secondary policy analysis only as context"
+      ]
+    },
+    {
+      "topic_domain_id": "ifos.forestry",
+      "priority_sources": [
+        "fsi-isfr",
+        "moefcc",
+        "icfre-nirantar",
+        "egazette",
+        "data-gov-in"
+      ],
+      "use": [
+        "ISFR forest/tree/mangrove/carbon stock data by edition",
+        "Forest and wildlife laws from Gazette/India Code",
+        "ICFRE research and forestry institute publications"
+      ]
+    },
+    {
+      "topic_domain_id": "ifos.geology",
+      "priority_sources": [
+        "data-gov-in",
+        "niti-reports",
+        "isro"
+      ],
+      "use": [
+        "Official geospatial/earth-science datasets when available",
+        "Remote sensing and GIS primary technical material",
+        "Link to exam-specific optional PYQs from UPSC catalogue"
+      ]
+    },
+    {
+      "topic_domain_id": "up.state_specific",
+      "priority_sources": [
+        "up-gov",
+        "up-budget",
+        "up-economic-survey",
+        "uppsc-notifications",
+        "uppsc-pyq",
+        "data-gov-in"
+      ],
+      "use": [
+        "UP Budget and state economic review by fiscal year",
+        "UP government department and district sources",
+        "UPPSC exact advertisement and question-paper filters",
+        "State-specific data must retain district, unit and reference year"
+      ]
+    }
+  ]
+}

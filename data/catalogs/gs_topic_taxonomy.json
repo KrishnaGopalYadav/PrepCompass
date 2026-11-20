@@ -1,0 +1,516 @@
+{
+  "schema_version": "1.0.0",
+  "last_reviewed": "2026-11-20",
+  "status": "starter_taxonomy_not_official_syllabus",
+  "rules": [
+    "Stable topic IDs are internal identifiers, not official syllabus numbering.",
+    "Exam mappings are crosswalk hints; verify against the applicable notification and syllabus version.",
+    "Do not treat shared topic names as proof of identical paper weightage."
+  ],
+  "domains": [
+    {
+      "id": "gs.history_culture",
+      "name": "History and Culture",
+      "subtopics": [
+        [
+          "ancient_india",
+          "Ancient India"
+        ],
+        [
+          "medieval_india",
+          "Medieval India"
+        ],
+        [
+          "modern_india",
+          "Modern India and freedom struggle"
+        ],
+        [
+          "world_history",
+          "World History"
+        ],
+        [
+          "art_architecture",
+          "Art, architecture and literature"
+        ],
+        [
+          "post_independence",
+          "Post-independence consolidation"
+        ],
+        [
+          "regional_history",
+          "Regional and Uttar Pradesh history"
+        ]
+      ]
+    },
+    {
+      "id": "gs.geography",
+      "name": "Geography",
+      "subtopics": [
+        [
+          "physical_geography",
+          "Physical geography"
+        ],
+        [
+          "indian_geography",
+          "Indian geography"
+        ],
+        [
+          "world_geography",
+          "World geography"
+        ],
+        [
+          "resources",
+          "Resources and industries"
+        ],
+        [
+          "agriculture_geography",
+          "Agricultural geography"
+        ],
+        [
+          "disaster_geography",
+          "Geographical dimensions of disasters"
+        ],
+        [
+          "up_geography",
+          "Uttar Pradesh geography, rivers and regions"
+        ]
+      ]
+    },
+    {
+      "id": "gs.polity_governance",
+      "name": "Polity and Governance",
+      "subtopics": [
+        [
+          "constitution",
+          "Constitutional framework"
+        ],
+        [
+          "federalism",
+          "Federalism and Centre-State relations"
+        ],
+        [
+          "parliament",
+          "Parliament and state legislatures"
+        ],
+        [
+          "executive_judiciary",
+          "Executive and judiciary"
+        ],
+        [
+          "local_government",
+          "Local government and decentralisation"
+        ],
+        [
+          "rights",
+          "Rights, duties and constitutional bodies"
+        ],
+        [
+          "governance",
+          "Governance, transparency and accountability"
+        ],
+        [
+          "up_governance",
+          "Uttar Pradesh administration and local governance"
+        ]
+      ]
+    },
+    {
+      "id": "gs.economy",
+      "name": "Economy",
+      "subtopics": [
+        [
+          "macro",
+          "Macroeconomy and national income"
+        ],
+        [
+          "public_finance",
+          "Budget, taxation and public finance"
+        ],
+        [
+          "banking",
+          "Banking, monetary policy and financial inclusion"
+        ],
+        [
+          "agriculture",
+          "Agriculture, food security and land reforms"
+        ],
+        [
+          "industry",
+          "Industry, infrastructure and services"
+        ],
+        [
+          "employment",
+          "Employment, poverty and inequality"
+        ],
+        [
+          "external_sector",
+          "External sector and trade"
+        ],
+        [
+          "up_economy",
+          "Uttar Pradesh economy, budget and state finances"
+        ]
+      ]
+    },
+    {
+      "id": "gs.social_justice",
+      "name": "Social Justice",
+      "subtopics": [
+        [
+          "health",
+          "Health and nutrition"
+        ],
+        [
+          "education",
+          "Education and human capital"
+        ],
+        [
+          "vulnerable_groups",
+          "Vulnerable groups and inclusion"
+        ],
+        [
+          "demography",
+          "Population and demographic transition"
+        ],
+        [
+          "welfare",
+          "Welfare schemes and delivery"
+        ]
+      ]
+    },
+    {
+      "id": "gs.international_relations",
+      "name": "International Relations",
+      "subtopics": [
+        [
+          "bilateral",
+          "Bilateral relations"
+        ],
+        [
+          "multilateral",
+          "Multilateral institutions"
+        ],
+        [
+          "regional_groupings",
+          "Regional groupings"
+        ],
+        [
+          "diaspora",
+          "Indian diaspora"
+        ],
+        [
+          "global_governance",
+          "Global governance and international law"
+        ]
+      ]
+    },
+    {
+      "id": "gs.science_technology",
+      "name": "Science and Technology",
+      "subtopics": [
+        [
+          "space",
+          "Space and astronomy"
+        ],
+        [
+          "biotechnology",
+          "Biotechnology and health technology"
+        ],
+        [
+          "digital",
+          "AI, computing and digital public infrastructure"
+        ],
+        [
+          "energy",
+          "Energy technologies"
+        ],
+        [
+          "defence",
+          "Defence technology"
+        ],
+        [
+          "emerging",
+          "Emerging technologies and ethical issues"
+        ]
+      ]
+    },
+    {
+      "id": "gs.environment",
+      "name": "Environment and Ecology",
+      "subtopics": [
+        [
+          "ecology",
+          "Ecology and ecosystems"
+        ],
+        [
+          "biodiversity",
+          "Biodiversity and protected areas"
+        ],
+        [
+          "climate",
+          "Climate change and international agreements"
+        ],
+        [
+          "pollution",
+          "Pollution and waste management"
+        ],
+        [
+          "environment_law",
+          "Environmental governance and legislation"
+        ],
+        [
+          "forests",
+          "Forest policy, cover and conservation"
+        ],
+        [
+          "wildlife",
+          "Wildlife conservation"
+        ],
+        [
+          "up_ecology",
+          "Uttar Pradesh wetlands, forests and biodiversity"
+        ]
+      ]
+    },
+    {
+      "id": "gs.security_disaster",
+      "name": "Internal Security and Disaster Management",
+      "subtopics": [
+        [
+          "internal_security",
+          "Internal security and extremism"
+        ],
+        [
+          "cyber_security",
+          "Cyber security"
+        ],
+        [
+          "border_management",
+          "Border management"
+        ],
+        [
+          "disaster_risk",
+          "Disaster risk reduction and response"
+        ],
+        [
+          "climate_disaster",
+          "Climate-related hazards and resilience"
+        ]
+      ]
+    },
+    {
+      "id": "gs.ethics",
+      "name": "Ethics, Integrity and Aptitude",
+      "subtopics": [
+        [
+          "ethics_foundations",
+          "Ethics and human interface"
+        ],
+        [
+          "attitude",
+          "Attitude and aptitude"
+        ],
+        [
+          "emotional_intelligence",
+          "Emotional intelligence"
+        ],
+        [
+          "public_service",
+          "Public service values and probity"
+        ],
+        [
+          "case_studies",
+          "Ethics case studies"
+        ]
+      ]
+    },
+    {
+      "id": "ifos.forestry",
+      "name": "Forestry Specialist",
+      "subtopics": [
+        [
+          "silviculture",
+          "Silviculture and silvicultural systems"
+        ],
+        [
+          "forest_management",
+          "Forest management and working plans"
+        ],
+        [
+          "mensuration",
+          "Forest mensuration and inventory"
+        ],
+        [
+          "forest_soils",
+          "Forest soils and watershed management"
+        ],
+        [
+          "agroforestry",
+          "Agroforestry and social forestry"
+        ],
+        [
+          "forest_protection",
+          "Forest protection, fire, pests and diseases"
+        ],
+        [
+          "wildlife_biology",
+          "Wildlife biology and management"
+        ],
+        [
+          "forest_economics",
+          "Forest economics and utilisation"
+        ],
+        [
+          "forest_law",
+          "Forest legislation and policy"
+        ]
+      ]
+    },
+    {
+      "id": "ifos.geology",
+      "name": "Geology Specialist",
+      "subtopics": [
+        [
+          "general_geology",
+          "General geology and geodynamics"
+        ],
+        [
+          "geomorphology",
+          "Geomorphology and remote sensing"
+        ],
+        [
+          "structural_geology",
+          "Structural geology"
+        ],
+        [
+          "palaeontology",
+          "Palaeontology"
+        ],
+        [
+          "stratigraphy",
+          "Stratigraphy and Indian geology"
+        ],
+        [
+          "hydrogeology",
+          "Hydrogeology"
+        ],
+        [
+          "engineering_geology",
+          "Engineering geology"
+        ]
+      ]
+    },
+    {
+      "id": "up.state_specific",
+      "name": "Uttar Pradesh State Studies",
+      "subtopics": [
+        [
+          "up_history",
+          "UP history and culture"
+        ],
+        [
+          "up_geography",
+          "UP physical and human geography"
+        ],
+        [
+          "up_agriculture",
+          "UP agriculture and irrigation"
+        ],
+        [
+          "up_industry",
+          "UP industry, infrastructure and investment"
+        ],
+        [
+          "up_schemes",
+          "UP schemes and social sector"
+        ],
+        [
+          "up_environment",
+          "UP environment, forests and protected areas"
+        ],
+        [
+          "up_current",
+          "UP current affairs and governance"
+        ]
+      ]
+    }
+  ],
+  "exam_crosswalks": {
+    "upsc_cse": {
+      "prelims": [
+        "gs.history_culture",
+        "gs.geography",
+        "gs.polity_governance",
+        "gs.economy",
+        "gs.social_justice",
+        "gs.science_technology",
+        "gs.environment"
+      ],
+      "mains": [
+        "gs.history_culture",
+        "gs.geography",
+        "gs.polity_governance",
+        "gs.economy",
+        "gs.social_justice",
+        "gs.international_relations",
+        "gs.science_technology",
+        "gs.environment",
+        "gs.security_disaster",
+        "gs.ethics"
+      ]
+    },
+    "upsc_ifos": {
+      "prelims": [
+        "gs.history_culture",
+        "gs.geography",
+        "gs.polity_governance",
+        "gs.economy",
+        "gs.science_technology",
+        "gs.environment"
+      ],
+      "mains_optional": [
+        "ifos.forestry",
+        "ifos.geology"
+      ]
+    },
+    "uppsc_pcs": {
+      "prelims": [
+        "gs.history_culture",
+        "gs.geography",
+        "gs.polity_governance",
+        "gs.economy",
+        "gs.social_justice",
+        "gs.science_technology",
+        "gs.environment",
+        "up.state_specific"
+      ],
+      "mains": [
+        "gs.history_culture",
+        "gs.geography",
+        "gs.polity_governance",
+        "gs.economy",
+        "gs.social_justice",
+        "gs.international_relations",
+        "gs.science_technology",
+        "gs.environment",
+        "gs.security_disaster",
+        "gs.ethics",
+        "up.state_specific"
+      ]
+    },
+    "uppsc_acf_rfo": {
+      "common_prelims": [
+        "gs.history_culture",
+        "gs.geography",
+        "gs.polity_governance",
+        "gs.economy",
+        "gs.environment",
+        "up.state_specific"
+      ],
+      "specialist": [
+        "ifos.forestry",
+        "ifos.geology"
+      ]
+    }
+  }
+}
