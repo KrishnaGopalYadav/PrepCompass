@@ -26,6 +26,7 @@ from app.diagnostics_engine import (
     save_diagnostic,
 )
 from app.syllabus_catalog import ensure_syllabus_schema, seed_syllabus_catalog
+from app.resource_catalog import ensure_resource_schema, list_sources, list_pyq_collections
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", str(Path(__file__).resolve().parents[1] / "data" / "prepcompass.db"))
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3011").rstrip("/")
@@ -154,6 +155,7 @@ initialise_database()
 ensure_planning_schema(DATABASE_PATH)
 ensure_syllabus_schema(DATABASE_PATH)
 seed_syllabus_catalog(DATABASE_PATH)
+ensure_resource_schema(DATABASE_PATH)
 
 app = FastAPI(
     title="PrepCompass API",
@@ -867,3 +869,28 @@ def diagnostic_detail(
     if result is None:
         raise HTTPException(status_code=404, detail="Diagnostic not found")
     return result
+
+
+@app.get("/api/resources/sources")
+def resource_sources(source_type: Optional[str] = None, exam_id: Optional[str] = None, user=Depends(current_user)):
+    """List curated source metadata; no third-party documents are copied or served."""
+    allowed_exams = {"upsc_cse", "upsc_ifos", "uppsc_pcs", "uppsc_acf_rfo"}
+    if exam_id and exam_id not in allowed_exams:
+        raise HTTPException(status_code=422, detail="Unsupported exam_id")
+    return {"items": list_sources(DATABASE_PATH, source_type=source_type, exam_query=exam_id),
+            "count": len(list_sources(DATABASE_PATH, source_type=source_type, exam_query=exam_id)),
+            "catalogue_status": "curated_discovery_registry"}
+
+
+@app.get("/api/resources/pyqs")
+def resource_pyqs(exam_id: Optional[str] = None, stage: Optional[str] = None, user=Depends(current_user)):
+    """Return exam- and stage-specific PYQ collection links and observed coverage."""
+    allowed_exams = {"upsc_cse", "upsc_ifos", "uppsc_pcs", "uppsc_acf_rfo"}
+    allowed_stages = {"preliminary", "mains", "interview", "preliminary_and_mains"}
+    if exam_id and exam_id not in allowed_exams:
+        raise HTTPException(status_code=422, detail="Unsupported exam_id")
+    if stage and stage not in allowed_stages:
+        raise HTTPException(status_code=422, detail="Unsupported stage")
+    items = list_pyq_collections(DATABASE_PATH, exam_id=exam_id, stage=stage)
+    return {"items": items, "count": len(items), "catalogue_status": "discovery_only",
+            "notice": "Observed years are discovery hints, not a completeness guarantee. Confirm each paper on the issuing authority portal."}
