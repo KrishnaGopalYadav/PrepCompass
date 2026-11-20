@@ -3,7 +3,6 @@
 This module stores discovery metadata and source links only. It deliberately does not
 mirror copyrighted books, coaching PDFs, or complete third-party question banks.
 """
-import json
 import sqlite3
 from datetime import datetime, timezone
 
@@ -44,10 +43,10 @@ SOURCES = [
 ]
 
 PYQ_COLLECTIONS = [
-    ("upsc-cse-prelims", "upsc_cse", "preliminary", "UPSC Civil Services Preliminary Examination — GS Paper I and CSAT", "https://www.upsc.gov.in/examinations/previous-question-papers", "https://www.upsc.gov.in/examinations/previous-question-papers/archives", "2026,2025,2024,2023,2022,2021,2020,2019", "Official portal current and archive listings; confirm each paper's presence before marking acquired."),
+    ("upsc-cse-prelims", "upsc_cse", "preliminary", "UPSC Civil Services Preliminary Examination — GS Paper I and CSAT", "https://www.upsc.gov.in/examinations/previous-question-papers", "https://www.upsc.gov.in/examinations/previous-question-papers/archives", "", "Official portal current and archive listings; confirm each paper's presence before marking acquired."),
     ("upsc-cse-mains", "upsc_cse", "mains", "UPSC Civil Services Main Examination — Essay, GS I–IV, language and optional papers", "https://www.upsc.gov.in/examinations/previous-question-papers", "https://www.upsc.gov.in/examinations/previous-question-papers/archives", "2026,2025,2024,2023,2022,2021,2020", "Optional and language paper coverage varies; index individual paper links and editions."),
     ("upsc-ifos-prelims", "upsc_ifos", "preliminary", "IFoS screening — common Civil Services Preliminary papers", "https://www.upsc.gov.in/examinations/previous-question-papers", "https://www.upsc.gov.in/examinations/previous-question-papers/archives", "2026,2025,2024,2023,2022,2021,2020,2019", "Shared paper assets should reference the CSE paper record rather than duplicate binaries."),
-    ("upsc-ifos-mains", "upsc_ifos", "mains", "Indian Forest Service Main — English, General Knowledge and optional subject papers", "https://www.upsc.gov.in/examinations/previous-question-papers", "https://www.upsc.gov.in/examinations/previous-question-papers/archives", "2025,2022,2021,2020", "Official portal search returned IFoS Main 2025 and archive 2022; discover other years dynamically; list is not a completeness claim."),
+    ("upsc-ifos-mains", "upsc_ifos", "mains", "Indian Forest Service Main — English, General Knowledge and optional subject papers", "https://www.upsc.gov.in/examinations/previous-question-papers", "https://www.upsc.gov.in/examinations/previous-question-papers/archives", "", "Discover years dynamically from official UPSC listings; do not infer a complete year range."),
     ("uppsc-pcs-prelims", "uppsc_pcs", "preliminary", "UPPSC PCS Preliminary — General Studies I and II", "https://uppsc.up.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues", "https://uppsc.up.nic.in/Home", "2025,2024,2023,2021,2020,2018,2017", "Years surfaced on the official portal at catalogue preparation; paper availability is exam/filter-specific and may expire."),
     ("uppsc-pcs-mains", "uppsc_pcs", "mains", "UPPSC PCS Main — General Hindi, Essay and GS I–VI", "https://uppsc.up.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues", "https://uppsc.up.nic.in/Home", "2025,2024,2023,2021,2020,2018,2017", "Official portal page showed 2025 mains Hindi, Essay and GS I–VI; dynamically verify remaining years and papers."),
     ("uppsc-acf-rfo", "uppsc_acf_rfo", "preliminary_and_mains", "UPPSC ACF/RFO — common prelims and notification-specific mains/optional papers", "https://uppsc.up.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues", "https://uppsc.up.nic.in/Home", "", "Discover using exam/year/paper filters; keep ACF and RFO recruitment cycles and optional papers distinct."),
