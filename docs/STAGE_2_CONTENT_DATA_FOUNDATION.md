@@ -1,6 +1,6 @@
 # Stage 2 — Content and Data Foundation
 
-**Scope:** source registry, PYQ discovery catalogue, topic taxonomy, acquisition rules and provenance model.  
+**Scope:** source registry, PYQ discovery catalogue, topic taxonomy, topic-to-source learning map, acquisition rules and provenance model.  
 **Initial exams:** UPSC CSE, UPSC IFoS, UPPSC PCS, UPPSC ACF/RFO.  
 **Initial medium:** English, with Hindi-ready metadata design.
 
@@ -12,6 +12,8 @@ The runtime catalogue is seeded into SQLite by `backend/app/resource_catalog.py`
 - `GET /api/resources/pyqs` — list exam/stage collection records; optional `exam_id` and `stage`.
 
 The catalogue intentionally stores source metadata and links. It does not claim to have downloaded, OCR'd, verified or question-tagged every paper.
+
+The repository also includes `data/catalogs/gs_topic_taxonomy.json` (13 topic domains / 87 subtopics) and `data/catalogs/resource_learning_map.json`, which links each domain to curated source IDs and recommended use. These are starter crosswalks, not substitutes for notification-specific syllabus verification.
 
 ## 2. Official PYQ discovery starting points
 
