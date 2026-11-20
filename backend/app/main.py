@@ -18,6 +18,13 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.planner_engine import ensure_planning_schema, generate_rolling_plan
+from app.ai_provider import AIProviderError, AIProviderNotConfigured, generate_json
+from app.diagnostics_engine import (
+    calculate_study_metrics,
+    get_diagnostic,
+    list_diagnostics,
+    save_diagnostic,
+)
 from app.syllabus_catalog import ensure_syllabus_schema, seed_syllabus_catalog
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", str(Path(__file__).resolve().parents[1] / "data" / "prepcompass.db"))
@@ -138,6 +145,9 @@ def initialise_database():
         connection.executemany("INSERT OR IGNORE INTO exam_catalog(exam_id, name, short_name, conducting_body, description) VALUES (?, ?, ?, ?, ?)", exams)
         connection.execute("DELETE FROM sessions WHERE expires_at <= ?", (utc_now().isoformat(),))
         connection.execute("DELETE FROM oauth_states WHERE expires_at <= ?", (utc_now().isoformat(),))
+
+    from app.diagnostics_engine import ensure_diagnostics_schema
+    ensure_diagnostics_schema(DATABASE_PATH)
 
 
 initialise_database()
@@ -717,3 +727,143 @@ async def ai_status(user=Depends(current_user)):
     """Expose provider readiness without disclosing credentials."""
     from app.ai_provider import provider_status
     return provider_status()
+
+
+class DiagnosticRequest(BaseModel):
+    period_days: int = Field(default=28, ge=7, le=90)
+
+
+def normalise_diagnostic_report(data: dict) -> dict:
+    """Accept only bounded, display-safe fields from AI output."""
+    if not isinstance(data, dict):
+        raise ValueError("AI report must be a JSON object")
+
+    def clean_items(key):
+        value = data.get(key, [])
+        if not isinstance(value, list):
+            return []
+        return [
+            str(item).strip()[:500]
+            for item in value[:8]
+            if isinstance(item, (str, int, float)) and str(item).strip()
+        ]
+
+    summary = data.get("summary", "")
+    if not isinstance(summary, str):
+        summary = ""
+
+    return {
+        "summary": summary.strip()[:1200],
+        "strengths": clean_items("strengths"),
+        "weaknesses": clean_items("weaknesses"),
+        "risks": clean_items("risks"),
+        "recommendations": clean_items("recommendations"),
+        "limitations": [
+            "This report uses recorded study activity and planner data.",
+            "It does not establish syllabus mastery or predict examination results.",
+        ],
+    }
+
+
+@app.post("/api/ai/diagnostics", status_code=201)
+async def create_study_diagnostic(
+    payload: DiagnosticRequest,
+    user=Depends(current_user),
+):
+    """Generate objective study metrics and optional AI interpretation."""
+    metrics = calculate_study_metrics(
+        DATABASE_PATH,
+        user["id"],
+        payload.period_days,
+    )
+
+    activity = metrics["study_activity"]
+    planner = metrics["planner_progress"]
+    has_data = activity["total_sessions"] > 0 or planner["scheduled_tasks"] > 0
+
+    ai_status = "insufficient_data"
+    recommendations = None
+    provider = None
+    model = None
+
+    if has_data:
+        instructions = """
+You are a cautious study analytics assistant for competitive examination
+preparation.
+
+Analyse only the supplied recorded study metrics. Return one JSON object with:
+- summary: concise overall assessment
+- strengths: array of evidence-based observations
+- weaknesses: array of observed gaps
+- risks: array of realistic preparation risks
+- recommendations: array of specific, practical next actions
+
+Rules:
+- Do not invent study sessions, marks, syllabus completion or exam results.
+- Do not claim topic mastery or predict selection or examination success.
+- Distinguish missing data from poor performance.
+- Do not assume that more study hours automatically mean better learning.
+- Keep recommendations realistic and prioritised.
+- If evidence is limited, explicitly say so.
+"""
+        try:
+            result = await generate_json(
+                instructions=instructions,
+                input_data={"metrics": metrics},
+                max_output_tokens=1200,
+            )
+            recommendations = normalise_diagnostic_report(result["data"])
+            provider = result.get("provider")
+            model = result.get("model")
+            ai_status = "generated"
+        except (AIProviderError, AIProviderNotConfigured, ValueError, TypeError, KeyError):
+            # Preserve objective metrics even when AI inference or validation fails.
+            ai_status = "unavailable"
+            recommendations = None
+
+    diagnostic_id = save_diagnostic(
+        DATABASE_PATH,
+        user_id=user["id"],
+        period_days=payload.period_days,
+        metrics=metrics,
+        ai_status=ai_status,
+        recommendations=recommendations,
+        provider=provider,
+        model=model,
+        created_at=utc_now().isoformat(),
+    )
+
+    return {
+        "id": diagnostic_id,
+        "ai_status": ai_status,
+        "provider": provider,
+        "model": model,
+        "metrics": metrics,
+        "recommendations": recommendations,
+    }
+
+
+@app.get("/api/ai/diagnostics")
+def diagnostics_history(
+    limit: int = 20,
+    user=Depends(current_user),
+):
+    if not 1 <= limit <= 100:
+        raise HTTPException(status_code=422, detail="Limit must be between 1 and 100")
+    return {
+        "items": list_diagnostics(DATABASE_PATH, user["id"], limit)
+    }
+
+
+@app.get("/api/ai/diagnostics/{diagnostic_id}")
+def diagnostic_detail(
+    diagnostic_id: int,
+    user=Depends(current_user),
+):
+    if diagnostic_id < 1:
+        raise HTTPException(status_code=422, detail="Invalid diagnostic ID")
+
+    result = get_diagnostic(DATABASE_PATH, user["id"], diagnostic_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Diagnostic not found")
+    return result
