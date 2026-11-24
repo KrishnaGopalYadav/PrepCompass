@@ -152,6 +152,17 @@ Exam rules and eligibility must always be checked against the notification for t
 
 See [Verified Syllabus Catalogue — Sources and API](docs/VERIFIED_SYLLABUS_CATALOG.md) for source cycles, optional-subject rules, APIs and limitations.\n\nSee [Personalised Exam Planner — Product and Technical Design](docs/PERSONALISED_EXAM_PLANNER_DESIGN.md) for the detailed user journey, data model, planning engine, acceptance criteria and delivery milestones.
 
+## Repository audit and content foundation
+
+- [Stage 1 — Repository Audit and Verified Baseline](docs/STAGE_1_REPOSITORY_AUDIT.md)
+- [Stage 2 — Content and Data Foundation](docs/STAGE_2_CONTENT_DATA_FOUNDATION.md)
+- [Starter GS / exam topic taxonomy](data/catalogs/gs_topic_taxonomy.json)
+- [Topic-to-source learning map](data/catalogs/resource_learning_map.json)
+- Authenticated resource registry: `GET /api/resources/sources`
+- Authenticated PYQ discovery catalogue: `GET /api/resources/pyqs`
+
+The Stage 2 catalogue registers official exam authorities, government publications, datasets, forestry resources, NCERT catalogues and clearly-labelled secondary analysis. It contains discovery metadata and source links, not a claim that all linked papers or documents have been downloaded, parsed or verified.
+
 ## AI knowledge and content engine
 
 See [AI Knowledge, RAG, Adaptive Learning and GS Content Engine](docs/AI_KNOWLEDGE_RAG_AND_CONTENT_ENGINE.md) for the architecture, source governance, data model, daily ingestion pipeline, PYQ/mock strategy, adaptive learning loop, daily/weekly/monthly GS publishing workflow, APIs, quality gates and phased implementation plan. This is the next major product capability; it is a design document, not a claim that these features are already implemented.
